@@ -1,4 +1,4 @@
-package com.transitiontose.xkcdviewandroid;
+package com.transitiontose.xkcdviewand;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
