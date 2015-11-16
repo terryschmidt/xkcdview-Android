@@ -18,6 +18,7 @@ import android.view.animation.*;
 import android.view.animation.Animation.*;
 import android.media.MediaPlayer;;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.drawable.BitmapDrawable;
 
 // Terry Schmidt, CSC472, Final Project, Fall 2015
 
@@ -179,24 +180,10 @@ public class MainActivity extends Activity {
     }
 
     void savePressed() {
-        System.out.println("Save pressed");
-
-        /*String imageURL = "";
-
-        try {
-            imageURL = json.getString("img");
-        } catch (JSONException j) {
-            j.printStackTrace();
-        }*/
-
-        ImageView temp = comicImageView;
-        temp.buildDrawingCache();
-        Bitmap bm = temp.getDrawingCache();
-        MediaStore.Images.Media.insertImage(this.getContentResolver(), bm, "xkcd" + counter + ".jpg", "xkcd comic");
+        Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
+        MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "xkcd" , "xkcd comic");
         Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
     }
-
-
 
     void getSpecificComic() {
         playSound();
@@ -406,15 +393,15 @@ public class MainActivity extends Activity {
 
         protected Bitmap doInBackground(String... urls) {
             String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
+            Bitmap image = null;
             try {
                 InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
+                image = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
             }
-            return mIcon11;
+            return image;
         }
 
         protected void onPostExecute(Bitmap result) {
