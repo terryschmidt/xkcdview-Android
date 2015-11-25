@@ -31,6 +31,7 @@ public class MainActivity extends Activity {
     TextView titleTextView;
     ImageView leftArrow;
     ImageView rightArrow;
+    ImageView audioIcon;
     public ImageView comicImageView;
     Button randomComicButton;
     Button getSpecificComic;
@@ -40,7 +41,8 @@ public class MainActivity extends Activity {
     String URLtoRequestDataFrom = "";
     JSONObject json;
     Boolean isFirstQuery = true;
-    MediaPlayer mp;
+    MediaPlayer player;
+    boolean shouldPlaySound = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +60,11 @@ public class MainActivity extends Activity {
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
-        mp = new MediaPlayer();
+        audioIcon = (ImageView) findViewById(R.id.audio);
+        player = new MediaPlayer();
 
         int[] idList = {R.id.leftArrow, R.id.rightArrow, R.id.randomComicButton, R.id.saveToPhotos,
-                        R.id.getSpecificComic};
+                        R.id.getSpecificComic, R.id.audio};
 
         for (int id: idList) {
             View v = (View) findViewById(id);
@@ -93,7 +96,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onSaveInstanceState (Bundle outState) {
         super.onSaveInstanceState(outState);
-
         outState.putInt("oldMaximumComicNumber", maximumComicNumber);
         outState.putInt("oldCounter", counter);
         outState.putString("oldURLtoRequestDataFrom", URLtoRequestDataFrom);
@@ -108,18 +110,26 @@ public class MainActivity extends Activity {
                 case R.id.randomComicButton: randomComic(); break;
                 case R.id.saveToPhotos: savePressed(); break;
                 case R.id.getSpecificComic: getSpecificComic(); break;
+                case R.id.audio: audioPressed(); break;
             }
         }
     }
 
+    void audioPressed() {
+        shouldPlaySound = !shouldPlaySound;
+        Toast.makeText(this, "Audio toggled.", Toast.LENGTH_SHORT).show();
+    }
+
     void randomComic() {
-        playSound();
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
+            if (shouldPlaySound == true) {
+                playSound();
+            }
             System.out.println("Random pressed");
-            int random = randInt(1, maximumComicNumber);
+            int random = randomInteger(1, maximumComicNumber);
             counter = random;
             System.out.println(counter);
             URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
@@ -129,24 +139,23 @@ public class MainActivity extends Activity {
         }
     }
 
-    public static int randInt(int min, int max) {
-        Random rand = new Random();
-        // nextInt is normally exclusive of the top value,
-        // so add 1 to make it inclusive
-        int randomNum = rand.nextInt((max - min) + 1) + min;
+    public static int randomInteger(int min, int max) {
+        Random rng = new Random();
+        int randomNum = rng.nextInt((max - min) + 1) + min;
         return randomNum;
     }
 
     void leftPressed() {
-        playSound();
         System.out.println("Left pressed");
-
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
             if(counter >= 2 && counter <= maximumComicNumber) {
                 counter--;
+                if (shouldPlaySound == true) {
+                    playSound();
+                }
                 System.out.println(counter);
                 URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
                 getData();
@@ -159,7 +168,6 @@ public class MainActivity extends Activity {
     }
 
     void rightPressed() {
-        playSound();
         System.out.println("Right pressed");
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -168,6 +176,9 @@ public class MainActivity extends Activity {
         if (networkInfo != null && networkInfo.isConnected()) {
             if(counter >= 1 && counter <= maximumComicNumber - 1) {
                 counter++;
+                if (shouldPlaySound == true) {
+                    playSound();
+                }
                 System.out.println(counter);
                 URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
                 getData();
@@ -181,12 +192,11 @@ public class MainActivity extends Activity {
 
     void savePressed() {
         Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
-        MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "xkcd" , "xkcd comic");
+        MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "2015" , "2015");
         Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
     }
 
     void getSpecificComic() {
-        playSound();
         System.out.println("Get specific comic pressed");
         int comicToGet = -1;
 
@@ -203,6 +213,9 @@ public class MainActivity extends Activity {
         if (networkInfo != null && networkInfo.isConnected()) {
             if (comicToGet >= 1 && comicToGet <= maximumComicNumber) {
                 counter = comicToGet;
+                if (shouldPlaySound == true) {
+                    playSound();
+                }
                 System.out.println(counter);
                 URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json"; // update the URL
                 getData();
@@ -231,7 +244,7 @@ public class MainActivity extends Activity {
             // Starts the query
             System.out.println(URLtoRequestDataFrom);
             conn.connect();
-            int response = conn.getResponseCode();
+            //int response = conn.getResponseCode();
             //System.out.println("The response is: " + response);
             is = conn.getInputStream();
 
@@ -249,9 +262,6 @@ public class MainActivity extends Activity {
             }
 
             return contentAsString;
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
         } finally {
             if (is != null) {
                 is.close();
@@ -259,9 +269,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is, "UTF-8").useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+    String convertStreamToString(InputStream is) {
+        Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
     }
 
     void getComicImage(JSONObject jsonArg) {
@@ -334,17 +344,17 @@ public class MainActivity extends Activity {
     }
 
     void playSound() {
-        if(mp.isPlaying()) {
-            mp.stop();
+        if(player.isPlaying()) {
+            player.stop();
         }
 
         try {
-            mp.reset();
+            player.reset();
             AssetFileDescriptor afd;
-            afd = getAssets().openFd("button-31.mp3");
-            mp.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-            mp.prepare();
-            mp.start();
+            afd = getAssets().openFd("button-31.wav");
+            player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            player.prepare();
+            player.start();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -352,11 +362,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    // Uses AsyncTask to create a task away from the main UI thread. This task takes a
-    // URL string and uses it to create an HttpUrlConnection. Once the connection
-    // has been established, the AsyncTask downloads the contents of the webpage as
-    // an InputStream. Finally, the InputStream is converted into a string, which is
-    // displayed in the UI by the AsyncTask's onPostExecute method.
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -412,21 +417,36 @@ public class MainActivity extends Activity {
     }
 
     public static void ImageViewAnimatedChange(Context c, final ImageView v, final Bitmap new_image) {
-        final Animation anim_out = AnimationUtils.loadAnimation(c, android.R.anim.fade_out);
-        final Animation anim_in = AnimationUtils.loadAnimation(c, android.R.anim.fade_in);
-        anim_out.setAnimationListener(new AnimationListener() {
-            @Override public void onAnimationStart(Animation animation) {}
-            @Override public void onAnimationRepeat(Animation animation) {}
-            @Override public void onAnimationEnd(Animation animation) {
+        final Animation fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out);
+        final Animation fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in);
+        fadeFirstImageOut.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
                 v.setImageBitmap(new_image);
-                anim_in.setAnimationListener(new AnimationListener() {
-                    @Override public void onAnimationStart(Animation animation) {}
-                    @Override public void onAnimationRepeat(Animation animation) {}
-                    @Override public void onAnimationEnd(Animation animation) {}
+                fadeSecondImageIn.setAnimationListener(new AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
                 });
-                v.startAnimation(anim_in);
+                v.startAnimation(fadeSecondImageIn);
             }
         });
-        v.startAnimation(anim_out);
+        v.startAnimation(fadeFirstImageOut);
     }
 }

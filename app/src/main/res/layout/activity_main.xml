@@ -115,4 +115,14 @@
         android:id="@+id/comicImageView"
         android:layout_centerHorizontal="true" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/audioicon"
+        android:id="@+id/audio"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/comicNumTaker"
+        android:layout_alignEnd="@+id/leftArrow" />
+
 </RelativeLayout>
