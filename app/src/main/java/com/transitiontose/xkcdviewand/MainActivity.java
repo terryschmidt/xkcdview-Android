@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
     EditText comicNumTaker;
     int maximumComicNumber = 1600;
     int counter = 2;
-    String URLtoRequestDataFrom = "";
+    String URLtoRequestDataFrom = "http://xkcd.com/info.0.json";
     JSONObject json;
     Boolean isFirstQuery = true;
     MediaPlayer player;
