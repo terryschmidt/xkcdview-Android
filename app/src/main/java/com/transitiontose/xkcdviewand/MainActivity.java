@@ -16,7 +16,7 @@ import android.graphics.*;
 import android.provider.*;
 import android.view.animation.*;
 import android.view.animation.Animation.*;
-import android.media.MediaPlayer;;
+import android.media.MediaPlayer;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.BitmapDrawable;
 
