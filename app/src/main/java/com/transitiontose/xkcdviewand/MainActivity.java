@@ -24,24 +24,23 @@ import android.graphics.drawable.BitmapDrawable;
 
 public class MainActivity extends Activity {
 
-    ButtonClickListener btnClick;
-    TextView saveToPhotos;
-    TextView numberTextView;
-    TextView dateTextView;
-    TextView titleTextView;
-    ImageView leftArrow;
-    ImageView rightArrow;
-    ImageView audioIcon;
+    private TextView saveToPhotos;
+    private TextView numberTextView;
+    private TextView dateTextView;
+    private TextView titleTextView;
+    private ImageView leftArrow;
+    private ImageView rightArrow;
+    private ImageView audioIcon;
     public ImageView comicImageView;
-    Button randomComicButton;
-    Button getSpecificComic;
-    EditText comicNumTaker;
-    int maximumComicNumber = 1600;
-    int counter = 2;
-    String URLtoRequestDataFrom = "http://xkcd.com/info.0.json";
-    JSONObject json;
-    Boolean isFirstQuery = true;
-    MediaPlayer player;
+    private Button randomComicButton;
+    private Button getSpecificComic;
+    private EditText comicNumTaker;
+    private int maximumComicNumber = 1600;
+    private int counter = 2;
+    private String URLtoRequestDataFrom = "http://xkcd.com/info.0.json";
+    private JSONObject json;
+    private Boolean isFirstQuery = true;
+    private MediaPlayer player;
     boolean shouldPlaySound = true;
 
     @Override
@@ -49,7 +48,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnClick = new ButtonClickListener();
         leftArrow = (ImageView) findViewById(R.id.leftArrow);
         rightArrow = (ImageView) findViewById(R.id.rightArrow);
         randomComicButton = (Button) findViewById(R.id.randomComicButton);
@@ -62,14 +60,6 @@ public class MainActivity extends Activity {
         titleTextView = (TextView) findViewById(R.id.titleTextView);
         audioIcon = (ImageView) findViewById(R.id.audio);
         player = new MediaPlayer();
-
-        int[] idList = {R.id.leftArrow, R.id.rightArrow, R.id.randomComicButton, R.id.saveToPhotos,
-                        R.id.getSpecificComic, R.id.audio};
-
-        for (int id: idList) {
-            View v = (View) findViewById(id);
-            v.setOnClickListener(btnClick);
-        }
 
         String initialURL = "http://xkcd.com/info.0.json";
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -102,25 +92,12 @@ public class MainActivity extends Activity {
         outState.putBoolean("oldisFirstQuery", isFirstQuery);
     }
 
-    private class ButtonClickListener implements OnClickListener {
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.leftArrow: leftPressed(); break;
-                case R.id.rightArrow: rightPressed(); break;
-                case R.id.randomComicButton: randomComic(); break;
-                case R.id.saveToPhotos: savePressed(); break;
-                case R.id.getSpecificComic: getSpecificComic(); break;
-                case R.id.audio: audioPressed(); break;
-            }
-        }
-    }
-
-    void audioPressed() {
+    public void audioPressed(View v) {
         shouldPlaySound = !shouldPlaySound;
         Toast.makeText(this, "Audio toggled.", Toast.LENGTH_SHORT).show();
     }
 
-    void randomComic() {
+    public void randomComic(View v) {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -145,7 +122,7 @@ public class MainActivity extends Activity {
         return randomNum;
     }
 
-    void leftPressed() {
+    public void leftPressed(View v) {
         System.out.println("Left pressed");
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -167,7 +144,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    void rightPressed() {
+    public void rightPressed(View v) {
         System.out.println("Right pressed");
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -190,13 +167,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    void savePressed() {
+    public void savePressed(View v) {
         Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
         MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "2015" , "2015");
         Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
     }
 
-    void getSpecificComic() {
+    public void getSpecificComic(View v) {
         System.out.println("Get specific comic pressed");
         int comicToGet = -1;
 
@@ -227,7 +204,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    void getData() {
+    public void getData() {
         new DownloadWebpageTask().execute(URLtoRequestDataFrom);
     }
 
@@ -274,7 +251,7 @@ public class MainActivity extends Activity {
         return scanner.hasNext() ? scanner.next() : "";
     }
 
-    void getComicImage(JSONObject jsonArg) {
+    private void getComicImage(JSONObject jsonArg) {
         String imageURLtoFetch = "";
         try {
             imageURLtoFetch = jsonArg.getString("img");
@@ -285,7 +262,7 @@ public class MainActivity extends Activity {
         new DownloadImageTask((ImageView) findViewById(R.id.comicImageView)).execute(imageURLtoFetch);
     }
 
-    void getComicDate(JSONObject jsonArg) {
+    private void getComicDate(JSONObject jsonArg) {
         String day =""; String month = ""; String year ="";
         try {
             day = jsonArg.getString("day");
@@ -298,7 +275,7 @@ public class MainActivity extends Activity {
         dateTextView.setText(month + "/" + day + "/" + year);
     }
 
-    void getComicTitle(JSONObject jsonArg) {
+    private void getComicTitle(JSONObject jsonArg) {
         String title = "";
 
         try {
@@ -310,7 +287,7 @@ public class MainActivity extends Activity {
         titleTextView.setText(title);
     }
 
-    void getComicNumber(JSONObject jsonArg) {
+    private void getComicNumber(JSONObject jsonArg) {
         int num = -1;
 
         try {
@@ -322,7 +299,7 @@ public class MainActivity extends Activity {
         numberTextView.setText("comic #: " + num);
     }
 
-    void firstQueryWork(JSONObject jsonArg) {
+    private void firstQueryWork(JSONObject jsonArg) {
         int max = -1;
 
         try {
@@ -335,15 +312,15 @@ public class MainActivity extends Activity {
         counter = maximumComicNumber;
     }
 
-    void invalidToast() {
+    private void invalidToast() {
         Toast.makeText(this, "Invalid comic number.", Toast.LENGTH_SHORT).show();
     }
 
-    void networkToast() {
+    private void networkToast() {
         Toast.makeText(this, "Network unavailable.", Toast.LENGTH_SHORT).show();
     }
 
-    void playSound() {
+    private void playSound() {
         if(player.isPlaying()) {
             player.stop();
         }
