@@ -6,7 +6,6 @@ import java.io.*;
 import java.net.*;
 import android.widget.*;
 import android.content.*;
-import android.view.View.*;
 import android.view.*;
 import android.net.*;
 import org.json.*;
@@ -31,7 +30,7 @@ public class MainActivity extends Activity {
     private ImageView leftArrow;
     private ImageView rightArrow;
     private ImageView audioIcon;
-    public ImageView comicImageView;
+    private ImageView comicImageView;
     private Button randomComicButton;
     private Button getSpecificComic;
     private EditText comicNumTaker;
@@ -41,7 +40,7 @@ public class MainActivity extends Activity {
     private JSONObject json;
     private Boolean isFirstQuery = true;
     private MediaPlayer player;
-    boolean shouldPlaySound = true;
+    private boolean shouldPlaySound = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
