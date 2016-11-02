@@ -23,19 +23,13 @@ import android.graphics.drawable.BitmapDrawable;
 
 public class MainActivity extends Activity {
 
-    private TextView saveToPhotos;
     private TextView numberTextView;
     private TextView dateTextView;
     private TextView titleTextView;
-    private ImageView leftArrow;
-    private ImageView rightArrow;
-    private ImageView audioIcon;
     private ImageView comicImageView;
-    private Button randomComicButton;
-    private Button getSpecificComic;
     private EditText comicNumTaker;
-    private int maximumComicNumber = 1600;
-    private int counter = 2;
+    private int maximumComicNumber = 0;
+    private int counter = 0;
     private String URLtoRequestDataFrom = "http://xkcd.com/info.0.json";
     private JSONObject json;
     private Boolean isFirstQuery = true;
@@ -47,17 +41,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        leftArrow = (ImageView) findViewById(R.id.leftArrow);
-        rightArrow = (ImageView) findViewById(R.id.rightArrow);
-        randomComicButton = (Button) findViewById(R.id.randomComicButton);
-        saveToPhotos = (TextView) findViewById(R.id.saveToPhotos);
-        getSpecificComic = (Button) findViewById(R.id.getSpecificComic);
         comicImageView = (ImageView) findViewById(R.id.comicImageView);
         comicNumTaker = (EditText) findViewById(R.id.comicNumTaker);
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
-        audioIcon = (ImageView) findViewById(R.id.audio);
         player = new MediaPlayer();
 
         String initialURL = "http://xkcd.com/info.0.json";
