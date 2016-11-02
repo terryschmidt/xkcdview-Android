@@ -246,7 +246,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    String convertStreamToString(InputStream is) {
+    private String convertStreamToString(InputStream is) {
         Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
     }
