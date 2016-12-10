@@ -93,8 +93,7 @@ public class MainActivity extends Activity {
                 playSound();
             }
             System.out.println("Random pressed");
-            int random = randomInteger(1, maximumComicNumber);
-            counter = random;
+            counter = randomInteger(1, maximumComicNumber);
             System.out.println(counter);
             URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
             getData();
