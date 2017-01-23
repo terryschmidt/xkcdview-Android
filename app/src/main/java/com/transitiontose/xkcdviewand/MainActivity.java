@@ -9,6 +9,8 @@ import android.content.*;
 import android.view.*;
 import android.net.*;
 import org.json.*;
+
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import android.util.Log;
 import android.graphics.*;
@@ -31,7 +33,7 @@ public class MainActivity extends Activity {
     private int maximumComicNumber = 0;
     private int counter = 0;
     private String URLtoRequestDataFrom = "http://xkcd.com/info.0.json";
-    private JSONObject json;
+    private JSONObject json = new JSONObject();
     private Boolean isFirstQuery = true;
     private MediaPlayer player;
     private boolean shouldPlaySound = true;
@@ -198,6 +200,7 @@ public class MainActivity extends Activity {
         InputStream is = null;
 
         try {
+            System.out.println("URL: " + myurl);
             URL url = new URL(myurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /* milliseconds */);
@@ -210,12 +213,15 @@ public class MainActivity extends Activity {
             //int response = conn.getResponseCode();
             //System.out.println("The response is: " + response);
             is = conn.getInputStream();
+            if (is == null) {
+                System.out.println("is is null!!");
+            }
 
             // Convert the InputStream into a string
 
             String contentAsString = convertStreamToString(is);
 
-            System.out.println(contentAsString);
+            System.out.println("contentAsString: " + contentAsString);
 
             try {
                 json = new JSONObject(contentAsString);
