@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
     private EditText comicNumTaker;
     private int maximumComicNumber = 0;
     private int counter = 0;
-    private String URLtoRequestDataFrom = "http://xkcd.com/info.0.json";
+    private String URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
     private JSONObject json = new JSONObject();
     private Boolean isFirstQuery = true;
     private MediaPlayer player;
@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
         titleTextView = (TextView) findViewById(R.id.titleTextView);
         player = new MediaPlayer();
 
-        String initialURL = "http://xkcd.com/info.0.json";
+        String initialURL = "https://xkcd.com/info.0.json";
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
             System.out.println("Random pressed");
             counter = randomInteger(1, maximumComicNumber);
             System.out.println(counter);
-            URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
+            URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
             getData();
         } else {
            networkToast();
@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
                     playSound();
                 }
                 System.out.println(counter);
-                URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
+                URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
                 getData();
             } else {
                 invalidToast();
@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
                     playSound();
                 }
                 System.out.println(counter);
-                URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json";
+                URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
                 getData();
             } else {
                 invalidToast();
@@ -182,7 +182,7 @@ public class MainActivity extends Activity {
                     playSound();
                 }
                 System.out.println(counter);
-                URLtoRequestDataFrom = "http://xkcd.com/" + counter + "/info.0.json"; // update the URL
+                URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json"; // update the URL
                 getData();
             } else {
                 invalidToast();
@@ -210,12 +210,9 @@ public class MainActivity extends Activity {
             // Starts the query
             System.out.println(URLtoRequestDataFrom);
             conn.connect();
-            //int response = conn.getResponseCode();
-            //System.out.println("The response is: " + response);
+            int response = conn.getResponseCode();
+            System.out.println("The response is: " + response);
             is = conn.getInputStream();
-            if (is == null) {
-                System.out.println("is is null!!");
-            }
 
             // Convert the InputStream into a string
 
