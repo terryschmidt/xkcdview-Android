@@ -10,7 +10,6 @@ import android.view.*;
 import android.net.*;
 import org.json.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import android.util.Log;
 import android.graphics.*;
@@ -91,7 +90,7 @@ public class MainActivity extends Activity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            if (shouldPlaySound == true) {
+            if (shouldPlaySound) {
                 playSound();
             }
             System.out.println("Random pressed");
@@ -104,10 +103,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    public static int randomInteger(int min, int max) {
-        Random rng = new Random();
-        int randomNum = rng.nextInt((max - min) + 1) + min;
-        return randomNum;
+    private static int randomInteger(int min, int max) {
+        return new Random().nextInt((max - min) + 1) + min;
     }
 
     public void leftPressed(View v) {
@@ -118,7 +115,7 @@ public class MainActivity extends Activity {
         if (networkInfo != null && networkInfo.isConnected()) {
             if(counter >= 2 && counter <= maximumComicNumber) {
                 counter--;
-                if (shouldPlaySound == true) {
+                if (shouldPlaySound) {
                     playSound();
                 }
                 System.out.println(counter);
@@ -141,7 +138,7 @@ public class MainActivity extends Activity {
         if (networkInfo != null && networkInfo.isConnected()) {
             if(counter >= 1 && counter <= maximumComicNumber - 1) {
                 counter++;
-                if (shouldPlaySound == true) {
+                if (shouldPlaySound) {
                     playSound();
                 }
                 System.out.println(counter);
@@ -163,7 +160,7 @@ public class MainActivity extends Activity {
 
     public void getSpecificComic(View v) {
         System.out.println("Get specific comic pressed");
-        int comicToGet = -1;
+        int comicToGet;
 
         try {
             comicToGet = Integer.parseInt(comicNumTaker.getText().toString());
@@ -178,7 +175,7 @@ public class MainActivity extends Activity {
         if (networkInfo != null && networkInfo.isConnected()) {
             if (comicToGet >= 1 && comicToGet <= maximumComicNumber) {
                 counter = comicToGet;
-                if (shouldPlaySound == true) {
+                if (shouldPlaySound) {
                     playSound();
                 }
                 System.out.println(counter);
@@ -270,7 +267,7 @@ public class MainActivity extends Activity {
         try {
             title = jsonArg.getString("title");
         } catch (org.json.JSONException j) {
-
+            Log.d("getComicTitle", "Can't parse title.");
         }
 
         titleTextView.setText(title);
@@ -282,7 +279,7 @@ public class MainActivity extends Activity {
         try {
             num = jsonArg.getInt("num");
         } catch (org.json.JSONException j) {
-
+            Log.d("getComicNumber", "Can't parse number.");
         }
 
         numberTextView.setText("comic #: " + num);
@@ -294,7 +291,7 @@ public class MainActivity extends Activity {
         try {
             max = jsonArg.getInt("num");
         } catch (org.json.JSONException j) {
-
+            Log.d("firstQueryWork", "Can't parse number.");
         }
 
         maximumComicNumber = max;
@@ -343,7 +340,7 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             //textView.setText(result);
-            if (isFirstQuery == true) {
+            if (isFirstQuery) {
                 firstQueryWork(json);
                 isFirstQuery = false;
             }
@@ -358,7 +355,7 @@ public class MainActivity extends Activity {
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
-        public DownloadImageTask(ImageView bmImage) {
+        protected DownloadImageTask(ImageView bmImage) {
             this.bmImage = bmImage;
         }
 
