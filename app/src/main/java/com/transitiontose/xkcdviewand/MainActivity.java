@@ -93,9 +93,7 @@ public class MainActivity extends Activity {
             if (shouldPlaySound) {
                 playSound();
             }
-            System.out.println("Random pressed");
             counter = randomInteger(1, maximumComicNumber);
-            System.out.println(counter);
             URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
             getData();
         } else {
@@ -108,7 +106,6 @@ public class MainActivity extends Activity {
     }
 
     public void leftPressed(View v) {
-        System.out.println("Left pressed");
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -118,7 +115,6 @@ public class MainActivity extends Activity {
                 if (shouldPlaySound) {
                     playSound();
                 }
-                System.out.println(counter);
                 URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
                 getData();
             } else {
@@ -130,8 +126,6 @@ public class MainActivity extends Activity {
     }
 
     public void rightPressed(View v) {
-        System.out.println("Right pressed");
-
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -141,7 +135,6 @@ public class MainActivity extends Activity {
                 if (shouldPlaySound) {
                     playSound();
                 }
-                System.out.println(counter);
                 URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
                 getData();
             } else {
@@ -159,7 +152,6 @@ public class MainActivity extends Activity {
     }
 
     public void getSpecificComic(View v) {
-        System.out.println("Get specific comic pressed");
         int comicToGet;
 
         try {
@@ -178,7 +170,6 @@ public class MainActivity extends Activity {
                 if (shouldPlaySound) {
                     playSound();
                 }
-                System.out.println(counter);
                 URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json"; // update the URL
                 getData();
             } else {
@@ -197,7 +188,6 @@ public class MainActivity extends Activity {
         InputStream is = null;
 
         try {
-            System.out.println("URL: " + myurl);
             URL url = new URL(myurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /* milliseconds */);
@@ -205,22 +195,18 @@ public class MainActivity extends Activity {
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             // Starts the query
-            System.out.println(URLtoRequestDataFrom);
             conn.connect();
             int response = conn.getResponseCode();
-            System.out.println("The response is: " + response);
             is = conn.getInputStream();
 
             // Convert the InputStream into a string
 
             String contentAsString = convertStreamToString(is);
 
-            System.out.println("contentAsString: " + contentAsString);
-
             try {
                 json = new JSONObject(contentAsString);
             } catch (org.json.JSONException j) {
-                System.out.println("JSONObject creation failed.");
+                Log.d("downloadUrl", "JSONObject creation failed.");
                 j.printStackTrace();
             }
 
