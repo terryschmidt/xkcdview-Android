@@ -6,8 +6,6 @@
     android:paddingBottom="8dp" tools:context=".MainActivity"
     android:background="#070d47">
 
-
-
     <ImageView
         android:src="@drawable/leftarrow"
         android:layout_width="50dp"
