@@ -300,7 +300,7 @@ public class MainActivity extends Activity {
         try {
             player.reset();
             AssetFileDescriptor afd;
-            afd = getAssets().openFd("button-31.wav");
+            afd = getAssets().openFd("sound.wav");
             player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             player.prepare();
             player.start();
