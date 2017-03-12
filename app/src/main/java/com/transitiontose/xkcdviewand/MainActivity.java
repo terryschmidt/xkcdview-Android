@@ -196,7 +196,7 @@ public class MainActivity extends Activity {
             conn.setDoInput(true);
             // Starts the query
             conn.connect();
-            int response = conn.getResponseCode();
+            //int response = conn.getResponseCode();
             is = conn.getInputStream();
 
             // Convert the InputStream into a string
@@ -304,9 +304,7 @@ public class MainActivity extends Activity {
             player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             player.prepare();
             player.start();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (IllegalStateException|IOException e) {
             e.printStackTrace();
         }
     }
