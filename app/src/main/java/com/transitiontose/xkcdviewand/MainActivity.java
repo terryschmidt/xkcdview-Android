@@ -86,8 +86,8 @@ public class MainActivity extends Activity {
     }
 
     public void randomComic(View v) {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = getNetworkInfo();
+
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
             if (shouldPlaySound) {
@@ -105,9 +105,13 @@ public class MainActivity extends Activity {
         return new Random().nextInt((max - min) + 1) + min;
     }
 
-    public void leftPressed(View v) {
+    private NetworkInfo getNetworkInfo() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return connMgr.getActiveNetworkInfo();
+    }
+
+    public void leftPressed(View v) {
+        NetworkInfo networkInfo = getNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
             if(counter >= 2 && counter <= maximumComicNumber) {
@@ -126,8 +130,7 @@ public class MainActivity extends Activity {
     }
 
     public void rightPressed(View v) {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = getNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
             if(counter >= 1 && counter <= maximumComicNumber - 1) {
@@ -161,8 +164,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = getNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
             if (comicToGet >= 1 && comicToGet <= maximumComicNumber) {
