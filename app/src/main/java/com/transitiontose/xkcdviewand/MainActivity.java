@@ -1,9 +1,13 @@
 package com.transitiontose.xkcdviewand;
 
+import android.Manifest;
 import android.app.*;
+import android.content.pm.PackageManager;
 import android.os.*;
 import java.io.*;
 import java.net.*;
+
+import android.support.v4.content.ContextCompat;
 import android.widget.*;
 import android.content.*;
 import android.view.*;
@@ -149,9 +153,11 @@ public class MainActivity extends Activity {
     }
 
     public void savePressed(View v) {
-        Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
-        MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "2015" , "2015");
-        Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
+            MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "2017" , "2017");
+            Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void getSpecificComic(View v) {
