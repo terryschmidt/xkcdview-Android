@@ -157,6 +157,8 @@ public class MainActivity extends Activity {
             Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
             saveImage(bitmap);
             Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+        } else {
+            // TODO: request permission, handle the result in overrided function
         }
     }
 
