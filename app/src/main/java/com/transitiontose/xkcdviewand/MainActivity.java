@@ -161,7 +161,6 @@ public class MainActivity extends Activity {
             saveImage(bitmap);
             Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
         } else {
-            // TODO: request permission, handle the result in overrided function
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 13);
         }
     }
