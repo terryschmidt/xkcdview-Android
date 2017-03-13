@@ -7,6 +7,7 @@ import android.os.*;
 import java.io.*;
 import java.net.*;
 
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.*;
 import android.content.*;
@@ -23,6 +24,8 @@ import android.view.animation.Animation.*;
 import android.media.MediaPlayer;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.BitmapDrawable;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 // Terry Schmidt, CSC472, Final Project, Fall 2015
 
@@ -153,12 +156,30 @@ public class MainActivity extends Activity {
     }
 
     public void savePressed(View v) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
             saveImage(bitmap);
             Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
         } else {
             // TODO: request permission, handle the result in overrided function
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 13);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 13: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
+                    saveImage(bitmap);
+                    Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // permission denied, boo!
+                    Toast.makeText(this, "This permission is required in order to save image to your device.", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
