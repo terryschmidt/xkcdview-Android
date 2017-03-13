@@ -153,7 +153,7 @@ public class MainActivity extends Activity {
     }
 
     public void savePressed(View v) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
             MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "2017" , "2017");
             Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
