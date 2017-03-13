@@ -155,8 +155,29 @@ public class MainActivity extends Activity {
     public void savePressed(View v) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
-            MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "2017" , "2017");
+            saveImage(bitmap);
             Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveImage(Bitmap finalBitmap) {
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/saved_images");
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
