@@ -29,8 +29,6 @@ import android.graphics.drawable.BitmapDrawable;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-// Terry Schmidt, CSC472, Final Project, Fall 2015
-
 public class MainActivity extends Activity {
 
     private RelativeLayout relativeLayout;
