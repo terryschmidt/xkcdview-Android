@@ -9,6 +9,8 @@ import java.net.*;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.content.*;
 import android.view.*;
@@ -31,6 +33,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends Activity {
 
+    private RelativeLayout relativeLayout;
     private TextView numberTextView;
     private TextView dateTextView;
     private TextView titleTextView;
@@ -49,8 +52,19 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
+        relativeLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    hideKeyboard();
+                }
+            }
+        });
+
         comicImageView = (ImageView) findViewById(R.id.comicImageView);
         comicNumTaker = (EditText) findViewById(R.id.comicNumTaker);
+        setEditTextOptions();
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
@@ -71,6 +85,21 @@ public class MainActivity extends Activity {
         } else if (networkInfo == null) {
             System.exit(0);
         }
+    }
+
+    private void setEditTextOptions() {
+        comicNumTaker.setImeOptions(EditorInfo.IME_ACTION_DONE); // collapse keyboard when done is pressed
+
+        comicNumTaker.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId==EditorInfo.IME_ACTION_DONE){
+                    comicNumTaker.clearFocus();
+                    relativeLayout.requestFocus();
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -209,6 +238,7 @@ public class MainActivity extends Activity {
         try {
             comicToGet = Integer.parseInt(comicNumTaker.getText().toString());
         } catch (IllegalArgumentException e) {
+            relativeLayout.requestFocus();
             invalidToast();
             return;
         }
@@ -228,6 +258,16 @@ public class MainActivity extends Activity {
             }
         } else {
             networkToast();
+        }
+
+        relativeLayout.requestFocus();
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 

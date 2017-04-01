@@ -2,9 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="8dp"
     android:focusable="true"
+    android:clickable="true"
     android:focusableInTouchMode="true"
     android:paddingRight="8dp"
     android:paddingTop="8dp"
+    android:id="@+id/relativeLayout"
     android:paddingBottom="8dp" tools:context=".MainActivity"
     android:background="#070d47">
 
