@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
         } else if (networkInfo != null && networkInfo.isConnected() && savedInstanceState == null) {
             new DownloadWebpageTask().execute(initialURL);
         } else if (networkInfo == null) {
-            System.exit(0);
+            networkToast();
         }
     }
 
