@@ -32,13 +32,14 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class MainActivity extends Activity {
 
     private RelativeLayout relativeLayout;
+    private Button getSpecificComicButton;
     private TextView numberTextView;
     private TextView dateTextView;
     private TextView titleTextView;
     private ImageView comicImageView;
     private EditText comicNumTaker;
-    private int maximumComicNumber = 0;
-    private int counter = 0;
+    private int maximumComicNumber = 1810;
+    private int counter = 1800;
     private String URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
     private JSONObject json = new JSONObject();
     private Boolean isFirstQuery = true;
@@ -60,8 +61,11 @@ public class MainActivity extends Activity {
             }
         });
 
+        getSpecificComicButton = (Button) findViewById(R.id.getSpecificComic);
+        getSpecificComicButton.setEnabled(false);
         comicImageView = (ImageView) findViewById(R.id.comicImageView);
         comicNumTaker = (EditText) findViewById(R.id.comicNumTaker);
+        comicNumTaker.setEnabled(false);
         setEditTextOptions();
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
@@ -129,6 +133,9 @@ public class MainActivity extends Activity {
             }
             counter = randomInteger(1, maximumComicNumber);
             URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
+            if (isFirstQuery) {
+                URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
+            }
             getData();
         } else {
            networkToast();
@@ -154,6 +161,9 @@ public class MainActivity extends Activity {
                     playSound();
                 }
                 URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
+                if (isFirstQuery) {
+                    URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
+                }
                 getData();
             } else {
                 invalidToast();
@@ -173,6 +183,9 @@ public class MainActivity extends Activity {
                     playSound();
                 }
                 URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json";
+                if (isFirstQuery) {
+                    URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
+                }
                 getData();
             } else {
                 invalidToast();
@@ -250,6 +263,9 @@ public class MainActivity extends Activity {
                     playSound();
                 }
                 URLtoRequestDataFrom = "https://xkcd.com/" + counter + "/info.0.json"; // update the URL
+                if (isFirstQuery) {
+                    URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
+                }
                 getData();
             } else {
                 invalidToast();
@@ -416,6 +432,8 @@ public class MainActivity extends Activity {
             if (isFirstQuery) {
                 firstQueryWork(json);
                 isFirstQuery = false;
+                getSpecificComicButton.setEnabled(true);
+                comicNumTaker.setEnabled(true);
             }
 
             getComicNumber(json);
