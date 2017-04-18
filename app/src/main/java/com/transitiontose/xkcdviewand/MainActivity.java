@@ -213,7 +213,7 @@ public class MainActivity extends Activity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
                     saveImage(bitmap);
-                    Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Image saved to ~/saved_images", Toast.LENGTH_SHORT).show();
                 } else {
                     // permission denied, boo!
                     Toast.makeText(this, "This permission is required in order to save image to your device.", Toast.LENGTH_SHORT).show();
@@ -231,7 +231,9 @@ public class MainActivity extends Activity {
         n = generator.nextInt(n);
         String fname = "Image-"+ n +".jpg";
         File file = new File (myDir, fname);
-        if (file.exists ()) file.delete ();
+        if (file.exists()) {
+            file.delete();
+        }
         try {
             FileOutputStream out = new FileOutputStream(file);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
