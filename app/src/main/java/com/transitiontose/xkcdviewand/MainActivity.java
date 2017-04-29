@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.*;
 import java.io.*;
 import java.net.*;
-
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.inputmethod.EditorInfo;
@@ -16,18 +15,14 @@ import android.content.*;
 import android.view.*;
 import android.net.*;
 import org.json.*;
-
 import java.util.*;
 import android.util.Log;
 import android.graphics.*;
-import android.provider.*;
 import android.view.animation.*;
 import android.view.animation.Animation.*;
 import android.media.MediaPlayer;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.BitmapDrawable;
-
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends Activity {
 
@@ -73,8 +68,7 @@ public class MainActivity extends Activity {
         player = new MediaPlayer();
 
         String initialURL = "https://xkcd.com/info.0.json";
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = getNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected() && savedInstanceState != null) {
             maximumComicNumber = savedInstanceState.getInt("oldMaximumComicNumber");
@@ -196,7 +190,7 @@ public class MainActivity extends Activity {
     }
 
     public void savePressed(View v) {
-        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
             saveImage(bitmap);
             Toast.makeText(this, "Image saved to ~/saved_images/", Toast.LENGTH_SHORT).show();
@@ -291,40 +285,6 @@ public class MainActivity extends Activity {
         new DownloadWebpageTask().execute(URLtoRequestDataFrom);
     }
 
-    private String downloadUrl(String myurl) throws IOException {
-        InputStream is = null;
-
-        try {
-            URL url = new URL(myurl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            // Starts the query
-            conn.connect();
-            //int response = conn.getResponseCode();
-            is = conn.getInputStream();
-
-            // Convert the InputStream into a string
-
-            String contentAsString = convertStreamToString(is);
-
-            try {
-                json = new JSONObject(contentAsString);
-            } catch (org.json.JSONException j) {
-                Log.d("downloadUrl", "JSONObject creation failed.");
-                j.printStackTrace();
-            }
-
-            return contentAsString;
-        } finally {
-            if (is != null) {
-                is.close();
-            }
-        }
-    }
-
     private String convertStreamToString(InputStream is) {
         Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
@@ -416,21 +376,51 @@ public class MainActivity extends Activity {
         }
     }
 
+    // task for downloading json from webpage
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+
+        private String downloadUrl(String myurl) throws IOException {
+            InputStream is = null;
+
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
+                //int response = conn.getResponseCode();
+                is = conn.getInputStream();
+                return convertStreamToString(is);
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
+            }
+        }
+
         @Override
         protected String doInBackground(String... urls) {
 
-            // params comes from the execute() call: params[0] is the url.
             try {
                 return downloadUrl(urls[0]);
             } catch (IOException e) {
                 return "Unable to retrieve web page.";
             }
         }
-        // onPostExecute displays the results of the AsyncTask.
+
         @Override
         protected void onPostExecute(String result) {
-            //textView.setText(result);
+            try {
+                json = new JSONObject(result);
+            } catch (org.json.JSONException j) {
+                Log.d("downloadUrl", "JSONObject creation failed.");
+                Toast.makeText(getApplicationContext(), "Could not fetch comic.", Toast.LENGTH_SHORT).show();
+                j.printStackTrace();
+                return;
+            }
+
             if (isFirstQuery) {
                 firstQueryWork(json);
                 isFirstQuery = false;
@@ -438,13 +428,14 @@ public class MainActivity extends Activity {
                 comicNumTaker.setEnabled(true);
             }
 
+            getComicImage(json);
             getComicNumber(json);
             getComicTitle(json);
-            getComicImage(json);
             getComicDate(json);
         }
     }
 
+    // task for downloading the comic image
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
@@ -466,43 +457,41 @@ public class MainActivity extends Activity {
         }
 
         protected void onPostExecute(Bitmap result) {
-            //bmImage.setImageBitmap(result);
-            Context c = getApplicationContext();
-            ImageViewAnimatedChange(c, bmImage, result);
+            ImageViewAnimatedChange(getApplicationContext(), bmImage, result);
         }
-    }
 
-    public static void ImageViewAnimatedChange(Context c, final ImageView v, final Bitmap new_image) {
-        final Animation fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out);
-        final Animation fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in);
-        fadeFirstImageOut.setAnimationListener(new AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
+        public void ImageViewAnimatedChange(Context c, final ImageView v, final Bitmap new_image) {
+            final Animation fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out);
+            final Animation fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in);
+            fadeFirstImageOut.setAnimationListener(new AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                v.setImageBitmap(new_image);
-                fadeSecondImageIn.setAnimationListener(new AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    v.setImageBitmap(new_image);
+                    fadeSecondImageIn.setAnimationListener(new AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                    }
-                });
-                v.startAnimation(fadeSecondImageIn);
-            }
-        });
-        v.startAnimation(fadeFirstImageOut);
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                        }
+                    });
+                    v.startAnimation(fadeSecondImageIn);
+                }
+            });
+            v.startAnimation(fadeFirstImageOut);
+        }
     }
 }
