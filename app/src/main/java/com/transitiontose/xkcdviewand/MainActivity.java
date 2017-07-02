@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
     private int maximumComicNumber = 1810;
     private int counter = 1800;
     private String URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
-    private JSONObject json = new JSONObject();
+    private JSONObject json;
     private Boolean isFirstQuery = true;
     private MediaPlayer player;
     private boolean shouldPlaySound = true;
@@ -66,6 +66,7 @@ public class MainActivity extends Activity {
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
         player = new MediaPlayer();
+        json = new JSONObject();
 
         String initialURL = "https://xkcd.com/info.0.json";
         NetworkInfo networkInfo = getNetworkInfo();
