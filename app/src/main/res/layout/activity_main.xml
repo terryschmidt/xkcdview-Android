@@ -141,4 +141,13 @@
         android:layout_centerHorizontal="true"
         android:layout_alignTop="@+id/dateTextView" />
 
+    <ImageView
+        android:id="@+id/shareIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/shareicon"
+        android:onClick="sharePressed"/>
+
 </RelativeLayout>

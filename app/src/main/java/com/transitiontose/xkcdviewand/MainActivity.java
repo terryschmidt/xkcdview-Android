@@ -3,9 +3,12 @@ package com.transitiontose.xkcdviewand;
 import android.Manifest;
 import android.app.*;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.*;
 import java.io.*;
 import java.net.*;
+
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.inputmethod.EditorInfo;
@@ -36,6 +39,7 @@ public class MainActivity extends Activity {
     private ImageView comicImageView;
     private EditText comicNumTaker;
     private ProgressBar progressBar;
+    private ImageView shareIcon;
     private int maximumComicNumber = 1810;
     private int counter = 1800;
     private String URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
@@ -68,6 +72,7 @@ public class MainActivity extends Activity {
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(white), android.graphics.PorterDuff.Mode.SRC_IN);
         setEditTextOptions();
         comicNumTaker.getBackground().mutate().setColorFilter(getResources().getColor(white), PorterDuff.Mode.SRC_ATOP);
+        shareIcon = (ImageView) findViewById(R.id.shareIcon);
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
@@ -122,6 +127,22 @@ public class MainActivity extends Activity {
     public void audioPressed(View v) {
         shouldPlaySound = !shouldPlaySound;
         Toast.makeText(this, "Audio toggled.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void sharePressed(View v) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Drawable drawable = comicImageView.getDrawable();
+            Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Image I want to share", null);
+            Uri uri = Uri.parse(path);
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            shareIntent.setType("image/*");
+            startActivity(Intent.createChooser(shareIntent, "Share Image"));
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 14);
+        }
     }
 
     public void randomComic(View v) {
@@ -218,6 +239,16 @@ public class MainActivity extends Activity {
                 } else {
                     // permission denied, boo!
                     Toast.makeText(this, "This permission is required in order to save image to your device.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            case 14: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    sharePressed(null);
+                } else {
+                    // permission denied, boo!
+                    Toast.makeText(this, "This permission is required in order to share image.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
