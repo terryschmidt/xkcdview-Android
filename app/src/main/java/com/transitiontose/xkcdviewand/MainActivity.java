@@ -24,6 +24,8 @@ import android.media.MediaPlayer;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.BitmapDrawable;
 
+import static android.R.color.white;
+
 public class MainActivity extends Activity {
 
     private RelativeLayout relativeLayout;
@@ -33,6 +35,7 @@ public class MainActivity extends Activity {
     private TextView titleTextView;
     private ImageView comicImageView;
     private EditText comicNumTaker;
+    private ProgressBar progressBar;
     private int maximumComicNumber = 1810;
     private int counter = 1800;
     private String URLtoRequestDataFrom = "https://xkcd.com/info.0.json";
@@ -61,6 +64,8 @@ public class MainActivity extends Activity {
         comicImageView = (ImageView) findViewById(R.id.comicImageView);
         comicNumTaker = (EditText) findViewById(R.id.comicNumTaker);
         comicNumTaker.setEnabled(false);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(white), android.graphics.PorterDuff.Mode.SRC_IN);
         setEditTextOptions();
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
@@ -381,7 +386,7 @@ public class MainActivity extends Activity {
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
 
         private String downloadUrl(String myurl) throws IOException {
-            InputStream is = null;
+            InputStream stream = null;
 
             try {
                 URL url = new URL(myurl);
@@ -392,13 +397,18 @@ public class MainActivity extends Activity {
                 conn.setDoInput(true);
                 conn.connect();
                 //int response = conn.getResponseCode();
-                is = conn.getInputStream();
-                return convertStreamToString(is);
+                stream = conn.getInputStream();
+                return convertStreamToString(stream);
             } finally {
-                if (is != null) {
-                    is.close();
+                if (stream != null) {
+                    stream.close();
                 }
             }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -437,13 +447,19 @@ public class MainActivity extends Activity {
     }
 
     // task for downloading the comic image
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+    private class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
         ImageView bmImage;
 
         protected DownloadImageTask(ImageView bmImage) {
             this.bmImage = bmImage;
         }
 
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
         protected Bitmap doInBackground(String... urls) {
             String urldisplay = urls[0];
             Bitmap image = null;
@@ -457,8 +473,16 @@ public class MainActivity extends Activity {
             return image;
         }
 
+        @Override
         protected void onPostExecute(Bitmap result) {
+            progressBar.setVisibility(View.GONE);
             ImageViewAnimatedChange(getApplicationContext(), bmImage, result);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            progressBar.setProgress(values[0]);
         }
 
         public void ImageViewAnimatedChange(Context c, final ImageView v, final Bitmap new_image) {

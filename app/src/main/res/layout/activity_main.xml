@@ -133,4 +133,12 @@
         android:layout_alignBottom="@+id/comicNumTaker"
         android:layout_alignEnd="@+id/leftArrow" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/randomComicButton"
+        android:layout_centerHorizontal="true"
+        android:layout_alignTop="@+id/dateTextView" />
+
 </RelativeLayout>
