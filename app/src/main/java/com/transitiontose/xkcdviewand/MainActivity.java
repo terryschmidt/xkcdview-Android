@@ -240,6 +240,7 @@ public class MainActivity extends Activity {
                     // permission denied, boo!
                     Toast.makeText(this, "This permission is required in order to save image to your device.", Toast.LENGTH_SHORT).show();
                 }
+                break;
             }
 
             case 14: {
@@ -250,6 +251,7 @@ public class MainActivity extends Activity {
                     // permission denied, boo!
                     Toast.makeText(this, "This permission is required in order to share image.", Toast.LENGTH_SHORT).show();
                 }
+                break;
             }
         }
     }
