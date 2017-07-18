@@ -67,6 +67,7 @@ public class MainActivity extends Activity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(white), android.graphics.PorterDuff.Mode.SRC_IN);
         setEditTextOptions();
+        comicNumTaker.getBackground().mutate().setColorFilter(getResources().getColor(white), PorterDuff.Mode.SRC_ATOP);
         numberTextView = (TextView) findViewById(R.id.numberTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
