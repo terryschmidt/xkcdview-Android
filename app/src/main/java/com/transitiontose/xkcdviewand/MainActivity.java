@@ -221,7 +221,7 @@ public class MainActivity extends Activity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
             saveImage(bitmap);
-            Toast.makeText(this, "Image saved to ~/saved_images/", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 13);
         }
@@ -235,7 +235,7 @@ public class MainActivity extends Activity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
                     saveImage(bitmap);
-                    Toast.makeText(this, "Image saved to ~/saved_images", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show();
                 } else {
                     // permission denied, boo!
                     Toast.makeText(this, "This permission is required in order to save image to your device.", Toast.LENGTH_SHORT).show();
@@ -258,13 +258,10 @@ public class MainActivity extends Activity {
 
     private void saveImage(Bitmap finalBitmap) {
         String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/saved_images");
+        File myDir = new File(root + "/xkcdview");
         myDir.mkdirs();
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
-        String fname = "Image-"+ n +".jpg";
-        File file = new File (myDir, fname);
+        String fname = "Image-"+ counter +".jpg";
+        File file = new File(myDir, fname);
         if (file.exists()) {
             file.delete();
         }
