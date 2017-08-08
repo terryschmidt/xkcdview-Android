@@ -134,14 +134,16 @@ public class MainActivity extends Activity {
     public void sharePressed(View v) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Drawable drawable = comicImageView.getDrawable();
-            Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
-            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Image I want to share", null);
-            Uri uri = Uri.parse(path);
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            shareIntent.setType("image/*");
-            startActivity(Intent.createChooser(shareIntent, "Share Image"));
+            if (drawable != null) {
+                Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+                String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Image I want to share", null);
+                Uri uri = Uri.parse(path);
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                shareIntent.setType("image/*");
+                startActivity(Intent.createChooser(shareIntent, "Share Image"));
+            }
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 14);
         }
