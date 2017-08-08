@@ -87,6 +87,8 @@ public class MainActivity extends Activity {
             counter = savedInstanceState.getInt("oldCounter");
             URLtoRequestDataFrom = savedInstanceState.getString("oldURLtoRequestDataFrom");
             isFirstQuery = savedInstanceState.getBoolean("oldisFirstQuery");
+            getSpecificComicButton.setEnabled(true);
+            comicNumTaker.setEnabled(true);
             new DownloadWebpageTask().execute(URLtoRequestDataFrom);
         } else if (networkInfo != null && networkInfo.isConnected() && savedInstanceState == null) {
             new DownloadWebpageTask().execute(initialURL);
