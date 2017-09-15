@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
 
     defaultConfig {
         applicationId "com.transitiontose.xkcdviewand"
         minSdkVersion 17
-        targetSdkVersion 25
-        versionCode 31
+        targetSdkVersion 26
+        versionCode 32
         versionName "1.0"
     }
     buildTypes {
@@ -21,5 +21,9 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-v4:25.0.0'
+    compile 'com.android.support:appcompat-v7:26+'
+    //compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    //compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.2'
 }

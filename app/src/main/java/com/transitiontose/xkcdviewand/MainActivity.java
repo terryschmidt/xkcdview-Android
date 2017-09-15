@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.os.*;
 import java.io.*;
 import java.net.*;
-
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,7 +25,7 @@ import android.view.animation.Animation.*;
 import android.media.MediaPlayer;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.BitmapDrawable;
-
+//import retrofit2.Retrofit;
 import static android.R.color.white;
 
 public class MainActivity extends Activity {
@@ -51,6 +50,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("MainActivity", "onCreate");
         setContentView(R.layout.activity_main);
 
         relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
@@ -97,6 +97,42 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        Log.d("MainActivity", "onDestroy");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("MainActivity", "onPause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("MainActivity", "onResume");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("MainActivity", "onRestart");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("MainActivity", "onStart");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("MainActivity", "onStop");
+    }
+
     private void setEditTextOptions() {
         comicNumTaker.setImeOptions(EditorInfo.IME_ACTION_DONE); // collapse keyboard when done is pressed
 
@@ -110,11 +146,6 @@ public class MainActivity extends Activity {
                 return false;
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
