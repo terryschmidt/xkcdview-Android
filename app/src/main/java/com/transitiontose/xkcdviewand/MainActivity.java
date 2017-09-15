@@ -254,9 +254,16 @@ public class MainActivity extends Activity {
 
     public void savePressed(View v) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
-            saveImage(bitmap);
-            Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show();
+            Drawable drawable = comicImageView.getDrawable();
+            if (drawable != null) {
+                Bitmap bitmap = ((BitmapDrawable)comicImageView.getDrawable()).getBitmap();
+                if (bitmap != null) {
+                    saveImage(bitmap);
+                    Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Cannot save before image loads.", Toast.LENGTH_SHORT).show();
+            }
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 13);
         }
