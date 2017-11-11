@@ -7,7 +7,7 @@
     android:paddingRight="8dp"
     android:paddingTop="8dp"
     android:id="@+id/relativeLayout"
-    android:paddingBottom="8dp" tools:context=".MainActivity"
+    android:paddingBottom="8dp" tools:context=".XkcdActivity"
     android:background="#070d47">
 
     <ImageView
