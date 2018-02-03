@@ -71,21 +71,21 @@ class XkcdActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         relativeLayout = findViewById<View>(R.id.relativeLayout) as RelativeLayout
-        relativeLayout!!.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+        relativeLayout?.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
                 hideKeyboard()
             }
         }
 
         getSpecificComicButton = findViewById<View>(R.id.getSpecificComic) as Button
-        getSpecificComicButton!!.isEnabled = false
+        getSpecificComicButton?.isEnabled = false
         comicImageView = findViewById<View>(R.id.comicImageView) as ImageView
         comicNumTaker = findViewById<View>(R.id.comicNumTaker) as EditText
-        comicNumTaker!!.isEnabled = false
+        comicNumTaker?.isEnabled = false
         progressBar = findViewById<View>(R.id.progressBar) as ProgressBar
-        progressBar!!.indeterminateDrawable.setColorFilter(resources.getColor(white), android.graphics.PorterDuff.Mode.SRC_IN)
+        progressBar?.indeterminateDrawable?.setColorFilter(resources.getColor(white), android.graphics.PorterDuff.Mode.SRC_IN)
         setEditTextOptions()
-        comicNumTaker!!.background.mutate().setColorFilter(resources.getColor(white), PorterDuff.Mode.SRC_ATOP)
+        comicNumTaker?.background?.mutate()?.setColorFilter(resources.getColor(white), PorterDuff.Mode.SRC_ATOP)
         shareIcon = findViewById<View>(R.id.shareIcon) as ImageView
         numberTextView = findViewById<View>(R.id.numberTextView) as TextView
         dateTextView = findViewById<View>(R.id.dateTextView) as TextView
@@ -101,8 +101,8 @@ class XkcdActivity : Activity() {
             counter = savedInstanceState.getInt("oldCounter")
             URLtoRequestDataFrom = savedInstanceState.getString("oldURLtoRequestDataFrom")
             isFirstQuery = savedInstanceState.getBoolean("oldisFirstQuery")
-            getSpecificComicButton!!.isEnabled = true
-            comicNumTaker!!.isEnabled = true
+            getSpecificComicButton?.isEnabled = true
+            comicNumTaker?.isEnabled = true
             DownloadWebpageTask().execute(URLtoRequestDataFrom)
         } else if (networkInfo != null && networkInfo.isConnected && savedInstanceState == null) {
             DownloadWebpageTask().execute(initialURL)
@@ -142,12 +142,12 @@ class XkcdActivity : Activity() {
     }
 
     private fun setEditTextOptions() {
-        comicNumTaker!!.imeOptions = EditorInfo.IME_ACTION_DONE // collapse keyboard when done is pressed
+        comicNumTaker?.imeOptions = EditorInfo.IME_ACTION_DONE // collapse keyboard when done is pressed
 
-        comicNumTaker!!.setOnEditorActionListener { v, actionId, event ->
+        comicNumTaker?.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                comicNumTaker!!.clearFocus()
-                relativeLayout!!.requestFocus()
+                comicNumTaker?.clearFocus()
+                relativeLayout?.requestFocus()
             }
             false
         }
@@ -158,7 +158,7 @@ class XkcdActivity : Activity() {
         outState.putInt("oldMaximumComicNumber", maximumComicNumber)
         outState.putInt("oldCounter", counter)
         outState.putString("oldURLtoRequestDataFrom", URLtoRequestDataFrom)
-        outState.putBoolean("oldisFirstQuery", isFirstQuery!!)
+        outState.putBoolean("oldisFirstQuery", isFirstQuery)
     }
 
     fun audioPressed(v: View) {
@@ -168,7 +168,7 @@ class XkcdActivity : Activity() {
 
     fun sharePressed(v: View?) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            val drawable = comicImageView!!.drawable
+            val drawable = comicImageView?.drawable
             if (drawable != null) {
                 val bitmap = (drawable as BitmapDrawable).bitmap
                 val path = MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Image I want to share", null)
@@ -196,7 +196,7 @@ class XkcdActivity : Activity() {
             }
             counter = randomInteger(1, maximumComicNumber)
             URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
-            if (isFirstQuery!!) {
+            if (isFirstQuery) {
                 URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
             }
             getData()
@@ -219,7 +219,7 @@ class XkcdActivity : Activity() {
                     playSound()
                 }
                 URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
-                if (isFirstQuery!!) {
+                if (isFirstQuery) {
                     URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
                 getData()
@@ -241,7 +241,7 @@ class XkcdActivity : Activity() {
                     playSound()
                 }
                 URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
-                if (isFirstQuery!!) {
+                if (isFirstQuery) {
                     URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
                 getData()
@@ -255,9 +255,9 @@ class XkcdActivity : Activity() {
 
     fun savePressed(v: View) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            val drawable = comicImageView!!.drawable
+            val drawable = comicImageView?.drawable
             if (drawable != null) {
-                val bitmap = (comicImageView!!.drawable as BitmapDrawable).bitmap
+                val bitmap = (comicImageView?.drawable as BitmapDrawable).bitmap
                 if (bitmap != null) {
                     saveImage(bitmap)
                     Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show()
@@ -274,8 +274,8 @@ class XkcdActivity : Activity() {
         when (requestCode) {
             13 -> {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    val bitmap = (comicImageView!!.drawable as BitmapDrawable).bitmap
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    val bitmap = (comicImageView?.drawable as BitmapDrawable).bitmap
                     saveImage(bitmap)
                     Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show()
                 } else {
@@ -286,7 +286,7 @@ class XkcdActivity : Activity() {
 
             14 -> {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     sharePressed(null)
                 } else {
                     // permission denied, boo!
@@ -310,20 +310,18 @@ class XkcdActivity : Activity() {
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
             out.flush()
             out.close()
-
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     fun getSpecificComic(v: View) {
         val comicToGet: Int
 
         try {
-            comicToGet = Integer.parseInt(comicNumTaker!!.text.toString())
+            comicToGet = Integer.parseInt(comicNumTaker?.text.toString())
         } catch (e: IllegalArgumentException) {
-            relativeLayout!!.requestFocus()
+            relativeLayout?.requestFocus()
             invalidToast()
             return
         }
@@ -337,7 +335,7 @@ class XkcdActivity : Activity() {
                     playSound()
                 }
                 URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json" // update the URL
-                if (isFirstQuery!!) {
+                if (isFirstQuery) {
                     URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
                 getData()
@@ -348,7 +346,7 @@ class XkcdActivity : Activity() {
             networkToast()
         }
 
-        relativeLayout!!.requestFocus()
+        relativeLayout?.requestFocus()
     }
 
     private fun hideKeyboard() {
@@ -359,7 +357,7 @@ class XkcdActivity : Activity() {
         }
     }
 
-    fun getData() {
+    private fun getData() {
         DownloadWebpageTask().execute(URLtoRequestDataFrom)
     }
 
@@ -391,7 +389,7 @@ class XkcdActivity : Activity() {
             j.printStackTrace()
         }
 
-        dateTextView!!.text = "$month/$day/$year"
+        dateTextView?.text = "$month/$day/$year"
     }
 
     private fun getComicTitle(jsonArg: JSONObject) {
@@ -403,7 +401,7 @@ class XkcdActivity : Activity() {
             Log.d("getComicTitle", "Can't parse title.")
         }
 
-        titleTextView!!.text = title
+        titleTextView?.text = title
     }
 
     private fun getComicNumber(jsonArg: JSONObject) {
@@ -415,7 +413,7 @@ class XkcdActivity : Activity() {
             Log.d("getComicNumber", "Can't parse number.")
         }
 
-        numberTextView!!.text = "comic #: " + num
+        numberTextView?.text = "comic #: " + num
     }
 
     private fun firstQueryWork(jsonArg: JSONObject) {
@@ -440,17 +438,17 @@ class XkcdActivity : Activity() {
     }
 
     private fun playSound() {
-        if (player!!.isPlaying) {
-            player!!.stop()
+        if (player != null && player!!.isPlaying) {
+            player?.stop()
         }
 
         try {
-            player!!.reset()
+            player?.reset()
             val afd: AssetFileDescriptor
             afd = assets.openFd("sound.wav")
-            player!!.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-            player!!.prepare()
-            player!!.start()
+            player?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            player?.prepare()
+            player?.start()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         } catch (e: IOException) {
@@ -485,7 +483,7 @@ class XkcdActivity : Activity() {
         }
 
         override fun onPreExecute() {
-            progressBar!!.visibility = View.VISIBLE
+            progressBar?.visibility = View.VISIBLE
         }
 
         override fun doInBackground(vararg urls: String): String {
@@ -508,15 +506,15 @@ class XkcdActivity : Activity() {
                 return
             }
 
-            if (isFirstQuery!!) {
+            if (isFirstQuery) {
                 val tempjson = json
                 if (tempjson != null) {
                     firstQueryWork(tempjson)
                 }
                 //firstQueryWork(json)
                 isFirstQuery = false
-                getSpecificComicButton!!.isEnabled = true
-                comicNumTaker!!.isEnabled = true
+                getSpecificComicButton?.isEnabled = true
+                comicNumTaker?.isEnabled = true
             }
 
             val tempjson = json
@@ -551,11 +549,11 @@ class XkcdActivity : Activity() {
         }
 
         override fun onPostExecute(result: Bitmap) {
-            progressBar!!.visibility = View.GONE
+            progressBar?.visibility = View.GONE
             ImageViewAnimatedChange(applicationContext, bmImage, result)
         }
 
-        fun ImageViewAnimatedChange(c: Context, v: ImageView, new_image: Bitmap) {
+        private fun ImageViewAnimatedChange(c: Context, v: ImageView, new_image: Bitmap) {
             val fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out)
             val fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in)
             fadeFirstImageOut.setAnimationListener(object : AnimationListener {
