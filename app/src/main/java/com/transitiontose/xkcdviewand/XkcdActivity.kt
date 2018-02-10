@@ -530,13 +530,13 @@ open class XkcdActivity : Activity() {
     }
 
     // task for downloading the comic image
-    private inner class DownloadImageTask(internal var bmImage: ImageView?) : AsyncTask<String, Int, Bitmap>() {
+    private inner class DownloadImageTask(internal var bmImage: ImageView?) : AsyncTask<String?, Int?, Bitmap?>() {
 
         override fun onPreExecute() {
 
         }
 
-        override fun doInBackground(vararg urls: String): Bitmap? {
+        override fun doInBackground(vararg urls: String?): Bitmap? {
             val urldisplay = urls[0]
             var image: Bitmap? = null
             try {
@@ -550,12 +550,12 @@ open class XkcdActivity : Activity() {
             return image
         }
 
-        override fun onPostExecute(result: Bitmap) {
+        override fun onPostExecute(result: Bitmap?) {
             progressBar?.visibility = View.GONE
-            ImageViewAnimatedChange(applicationContext, bmImage, result)
+            imageViewAnimatedChange(applicationContext, bmImage, result)
         }
 
-        private fun ImageViewAnimatedChange(c: Context, v: ImageView?, new_image: Bitmap) {
+        private fun imageViewAnimatedChange(c: Context, v: ImageView?, new_image: Bitmap?) {
             val fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out)
             val fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in)
             fadeFirstImageOut.setAnimationListener(object : AnimationListener {
