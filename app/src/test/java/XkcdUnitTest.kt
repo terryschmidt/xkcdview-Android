@@ -1,8 +1,11 @@
 
+import android.test.MoreAsserts.assertNotEqual
+import com.transitiontose.xkcdviewand.XkcdActivity
 import junit.framework.Assert
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import org.junit.*
+import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
@@ -26,6 +29,10 @@ class XkcdUnitTest {
             // do termination here, run once for all SillyTest tests
         }
     }
+
+    @Mock
+    var mActivity : XkcdActivity = XkcdActivity()
+
     @Before
     fun doThisFirst() {
         MockitoAnnotations.initMocks(this)
@@ -43,5 +50,6 @@ class XkcdUnitTest {
         `when`<Any>(fakeList.get(0)).thenReturn(1337)
         assertFalse(o == null)
         assertEquals(1337, fakeList.get(0))
+        assertNotEqual(mActivity.randomInteger(0, 2000), -1)
     }
 }

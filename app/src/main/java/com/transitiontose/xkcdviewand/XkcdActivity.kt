@@ -20,6 +20,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.annotation.VisibleForTesting
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -40,7 +41,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-class XkcdActivity : Activity() {
+open class XkcdActivity : Activity() {
 
     private var relativeLayout: RelativeLayout? = null
     private var getSpecificComicButton: Button? = null
@@ -77,19 +78,19 @@ class XkcdActivity : Activity() {
             }
         }
 
-        getSpecificComicButton = findViewById<View>(R.id.getSpecificComic) as Button
+        getSpecificComicButton = findViewById<View>(R.id.getSpecificComic) as Button?
         getSpecificComicButton?.isEnabled = false
-        comicImageView = findViewById<View>(R.id.comicImageView) as ImageView
-        comicNumTaker = findViewById<View>(R.id.comicNumTaker) as EditText
+        comicImageView = findViewById<View>(R.id.comicImageView) as ImageView?
+        comicNumTaker = findViewById<View>(R.id.comicNumTaker) as EditText?
         comicNumTaker?.isEnabled = false
-        progressBar = findViewById<View>(R.id.progressBar) as ProgressBar
+        progressBar = findViewById<View>(R.id.progressBar) as ProgressBar?
         progressBar?.indeterminateDrawable?.setColorFilter(resources.getColor(white), android.graphics.PorterDuff.Mode.SRC_IN)
         setEditTextOptions()
         comicNumTaker?.background?.mutate()?.setColorFilter(resources.getColor(white), PorterDuff.Mode.SRC_ATOP)
-        shareIcon = findViewById<View>(R.id.shareIcon) as ImageView
-        numberTextView = findViewById<View>(R.id.numberTextView) as TextView
-        dateTextView = findViewById<View>(R.id.dateTextView) as TextView
-        titleTextView = findViewById<View>(R.id.titleTextView) as TextView
+        shareIcon = findViewById<View>(R.id.shareIcon) as ImageView?
+        numberTextView = findViewById<View>(R.id.numberTextView) as TextView?
+        dateTextView = findViewById<View>(R.id.dateTextView) as TextView?
+        titleTextView = findViewById<View>(R.id.titleTextView) as TextView?
         player = MediaPlayer()
         json = JSONObject()
 
@@ -205,7 +206,8 @@ class XkcdActivity : Activity() {
         }
     }
 
-    private fun randomInteger(min: Int, max: Int): Int {
+    @VisibleForTesting
+    fun randomInteger(min: Int, max: Int): Int {
         return Random().nextInt(max - min + 1) + min
     }
 

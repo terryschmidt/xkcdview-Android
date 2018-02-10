@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="8dp"
+    android:focusable="true"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    android:paddingRight="8dp"
+    android:paddingTop="8dp"
+    android:id="@+id/relativeLayout"
+    android:paddingBottom="8dp" tools:context=".XkcdActivity"
+    android:background="#070d47">
+
+    <ImageView
+        android:id="@+id/leftArrow"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/shareIcon"
+        android:onClick="leftPressed"
+        android:scaleType="centerInside" android:src="@drawable/leftarrow"/>
+
+    <ImageView
+        android:id="@+id/rightArrow"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/shareIcon" android:layout_alignParentEnd="true" android:onClick="rightPressed" android:scaleType="centerInside"
+        android:src="@drawable/rightarrow"/>
+
+    <ImageView
+        android:id="@+id/comicImageView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true" android:layout_marginEnd="12dp" android:layout_toStartOf="@+id/leftArrow" android:paddingBottom="0dp"/>
+
+    <ImageView
+        android:id="@+id/shareIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true" android:onClick="sharePressed" android:src="@drawable/shareicon"/>
+
+</RelativeLayout>
