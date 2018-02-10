@@ -30,7 +30,7 @@
         android:id="@+id/comicImageView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_centerVertical="true" android:layout_marginEnd="12dp" android:layout_toStartOf="@+id/leftArrow" android:paddingBottom="0dp"/>
+        android:layout_alignParentTop="true" android:layout_toStartOf="@+id/leftArrow" android:paddingBottom="0dp"/>
 
     <ImageView
         android:id="@+id/shareIcon"

@@ -530,7 +530,7 @@ open class XkcdActivity : Activity() {
     }
 
     // task for downloading the comic image
-    private inner class DownloadImageTask(internal var bmImage: ImageView) : AsyncTask<String, Int, Bitmap>() {
+    private inner class DownloadImageTask(internal var bmImage: ImageView?) : AsyncTask<String, Int, Bitmap>() {
 
         override fun onPreExecute() {
 
@@ -555,7 +555,7 @@ open class XkcdActivity : Activity() {
             ImageViewAnimatedChange(applicationContext, bmImage, result)
         }
 
-        private fun ImageViewAnimatedChange(c: Context, v: ImageView, new_image: Bitmap) {
+        private fun ImageViewAnimatedChange(c: Context, v: ImageView?, new_image: Bitmap) {
             val fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out)
             val fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in)
             fadeFirstImageOut.setAnimationListener(object : AnimationListener {
@@ -564,7 +564,7 @@ open class XkcdActivity : Activity() {
                 override fun onAnimationRepeat(animation: Animation) {}
 
                 override fun onAnimationEnd(animation: Animation) {
-                    v.setImageBitmap(new_image)
+                    v?.setImageBitmap(new_image)
                     fadeSecondImageIn.setAnimationListener(object : AnimationListener {
                         override fun onAnimationStart(animation: Animation) {}
 
@@ -572,10 +572,10 @@ open class XkcdActivity : Activity() {
 
                         override fun onAnimationEnd(animation: Animation) {}
                     })
-                    v.startAnimation(fadeSecondImageIn)
+                    v?.startAnimation(fadeSecondImageIn)
                 }
             })
-            v.startAnimation(fadeFirstImageOut)
+            v?.startAnimation(fadeFirstImageOut)
         }
     }
 }
