@@ -172,14 +172,18 @@ open class XkcdActivity : Activity() {
             val drawable = comicImageView?.drawable
             if (drawable != null) {
                 val bitmap = (drawable as BitmapDrawable).bitmap
-                val path = MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Image I want to share", null)
-                val uri = Uri.parse(path)
-                val shareIntent = Intent()
-                shareIntent.action = Intent.ACTION_SEND
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-                shareIntent.type = "image/*"
-                if (shareIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(Intent.createChooser(shareIntent, "Share Image"))
+                if (bitmap != null) {
+                    val path = MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Image I want to share", null)
+                    if (path != null) {
+                        val uri = Uri.parse(path)
+                        val shareIntent = Intent()
+                        shareIntent.action = Intent.ACTION_SEND
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                        shareIntent.type = "image/*"
+                        if (shareIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(Intent.createChooser(shareIntent, "Share Image"))
+                        }
+                    }
                 }
             }
         } else {
