@@ -440,7 +440,7 @@ class XkcdActivity : Activity() {
     }
 
     private fun playSound() {
-        if (player != null && player!!.isPlaying) {
+        if (player?.isPlaying ?: false) {
             player?.stop()
         }
 
