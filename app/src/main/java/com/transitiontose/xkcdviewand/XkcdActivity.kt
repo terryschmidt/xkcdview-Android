@@ -20,9 +20,9 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.support.annotation.VisibleForTesting
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatDelegate
 import android.util.Log
 import android.view.View
 import android.view.animation.Animation
@@ -41,7 +41,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-open class XkcdActivity : Activity() {
+class XkcdActivity : Activity() {
 
     private var relativeLayout: RelativeLayout? = null
     private var getSpecificComicButton: Button? = null
@@ -54,7 +54,7 @@ open class XkcdActivity : Activity() {
     private var shareIcon: ImageView? = null
     private var maximumComicNumber = 1810
     private var counter = 1800
-    private var URLtoRequestDataFrom: String? = "https://xkcd.com/info.0.json"
+    private var urlToRequestDataFrom: String? = "https://xkcd.com/info.0.json"
     private var json: JSONObject? = null
     private var isFirstQuery = true
     private var player: MediaPlayer? = null
@@ -68,6 +68,8 @@ open class XkcdActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.AppTheme)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         Log.d("XkcdActivity", "onCreate")
         setContentView(R.layout.activity_main)
 
@@ -78,19 +80,19 @@ open class XkcdActivity : Activity() {
             }
         }
 
-        getSpecificComicButton = findViewById<View>(R.id.getSpecificComic) as Button?
+        getSpecificComicButton = findViewById(R.id.getSpecificComic)
         getSpecificComicButton?.isEnabled = false
-        comicImageView = findViewById<View>(R.id.comicImageView) as ImageView?
-        comicNumTaker = findViewById<View>(R.id.comicNumTaker) as EditText?
+        comicImageView = findViewById(R.id.comicImageView)
+        comicNumTaker = findViewById(R.id.comicNumTaker)
         comicNumTaker?.isEnabled = false
-        progressBar = findViewById<View>(R.id.progressBar) as ProgressBar?
+        progressBar = findViewById(R.id.progressBar)
         progressBar?.indeterminateDrawable?.setColorFilter(resources.getColor(white), android.graphics.PorterDuff.Mode.SRC_IN)
         setEditTextOptions()
         comicNumTaker?.background?.mutate()?.setColorFilter(resources.getColor(white), PorterDuff.Mode.SRC_ATOP)
-        shareIcon = findViewById<View>(R.id.shareIcon) as ImageView?
-        numberTextView = findViewById<View>(R.id.numberTextView) as TextView?
-        dateTextView = findViewById<View>(R.id.dateTextView) as TextView?
-        titleTextView = findViewById<View>(R.id.titleTextView) as TextView?
+        shareIcon = findViewById(R.id.shareIcon)
+        numberTextView = findViewById(R.id.numberTextView)
+        dateTextView = findViewById(R.id.dateTextView)
+        titleTextView = findViewById(R.id.titleTextView)
         player = MediaPlayer()
         json = JSONObject()
 
@@ -100,11 +102,11 @@ open class XkcdActivity : Activity() {
         if (networkInfo != null && networkInfo.isConnected && savedInstanceState != null) {
             maximumComicNumber = savedInstanceState.getInt("oldMaximumComicNumber")
             counter = savedInstanceState.getInt("oldCounter")
-            URLtoRequestDataFrom = savedInstanceState.getString("oldURLtoRequestDataFrom")
+            urlToRequestDataFrom = savedInstanceState.getString("oldURLtoRequestDataFrom")
             isFirstQuery = savedInstanceState.getBoolean("oldisFirstQuery")
             getSpecificComicButton?.isEnabled = true
             comicNumTaker?.isEnabled = true
-            DownloadWebpageTask().execute(URLtoRequestDataFrom)
+            DownloadWebpageTask().execute(urlToRequestDataFrom)
         } else if (networkInfo != null && networkInfo.isConnected && savedInstanceState == null) {
             DownloadWebpageTask().execute(initialURL)
         } else if (networkInfo == null) {
@@ -158,7 +160,7 @@ open class XkcdActivity : Activity() {
         super.onSaveInstanceState(outState)
         outState.putInt("oldMaximumComicNumber", maximumComicNumber)
         outState.putInt("oldCounter", counter)
-        outState.putString("oldURLtoRequestDataFrom", URLtoRequestDataFrom)
+        outState.putString("oldURLtoRequestDataFrom", urlToRequestDataFrom)
         outState.putBoolean("oldisFirstQuery", isFirstQuery)
     }
 
@@ -180,7 +182,7 @@ open class XkcdActivity : Activity() {
                         shareIntent.action = Intent.ACTION_SEND
                         shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
                         shareIntent.type = "image/*"
-                        if (shareIntent.resolveActivity(getPackageManager()) != null) {
+                        if (shareIntent.resolveActivity(packageManager) != null) {
                             startActivity(Intent.createChooser(shareIntent, "Share Image"))
                         }
                     }
@@ -200,9 +202,9 @@ open class XkcdActivity : Activity() {
                 playSound()
             }
             counter = randomInteger(1, maximumComicNumber)
-            URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
+            urlToRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
             if (isFirstQuery) {
-                URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
+                urlToRequestDataFrom = "https://xkcd.com/info.0.json"
             }
             getData()
         } else {
@@ -210,7 +212,6 @@ open class XkcdActivity : Activity() {
         }
     }
 
-    @VisibleForTesting
     fun randomInteger(min: Int, max: Int): Int {
         return Random().nextInt(max - min + 1) + min
     }
@@ -219,14 +220,14 @@ open class XkcdActivity : Activity() {
         val networkInfo = networkInfo
 
         if (networkInfo != null && networkInfo.isConnected) {
-            if (counter >= 2 && counter <= maximumComicNumber) {
+            if (counter in 2..maximumComicNumber) {
                 counter--
                 if (shouldPlaySound) {
                     playSound()
                 }
-                URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
+                urlToRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
                 if (isFirstQuery) {
-                    URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
+                    urlToRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
                 getData()
             } else {
@@ -246,9 +247,9 @@ open class XkcdActivity : Activity() {
                 if (shouldPlaySound) {
                     playSound()
                 }
-                URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
+                urlToRequestDataFrom = "https://xkcd.com/$counter/info.0.json"
                 if (isFirstQuery) {
-                    URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
+                    urlToRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
                 getData()
             } else {
@@ -335,14 +336,14 @@ open class XkcdActivity : Activity() {
         val networkInfo = networkInfo
 
         if (networkInfo != null && networkInfo.isConnected) {
-            if (comicToGet >= 1 && comicToGet <= maximumComicNumber) {
+            if (comicToGet in 1..maximumComicNumber) {
                 counter = comicToGet
                 if (shouldPlaySound) {
                     playSound()
                 }
-                URLtoRequestDataFrom = "https://xkcd.com/$counter/info.0.json" // update the URL
+                urlToRequestDataFrom = "https://xkcd.com/$counter/info.0.json" // update the URL
                 if (isFirstQuery) {
-                    URLtoRequestDataFrom = "https://xkcd.com/info.0.json"
+                    urlToRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
                 getData()
             } else {
@@ -364,12 +365,7 @@ open class XkcdActivity : Activity() {
     }
 
     private fun getData() {
-        DownloadWebpageTask().execute(URLtoRequestDataFrom)
-    }
-
-    private fun convertStreamToString(`is`: InputStream?): String {
-        val scanner = Scanner(`is`!!, "UTF-8").useDelimiter("\\A")
-        return if (scanner.hasNext()) scanner.next() else ""
+        DownloadWebpageTask().execute(urlToRequestDataFrom)
     }
 
     private fun getComicImage(jsonArg: JSONObject) {
@@ -450,8 +446,7 @@ open class XkcdActivity : Activity() {
 
         try {
             player?.reset()
-            val afd: AssetFileDescriptor
-            afd = assets.openFd("sound.wav")
+            val afd: AssetFileDescriptor = assets.openFd("sound.wav")
             player?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
             player?.prepare()
             player?.start()
@@ -460,7 +455,6 @@ open class XkcdActivity : Activity() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
     }
 
     // task for downloading json from webpage
@@ -488,18 +482,21 @@ open class XkcdActivity : Activity() {
             }
         }
 
+        private fun convertStreamToString(`is`: InputStream?): String {
+            val scanner = Scanner(`is`!!, "UTF-8").useDelimiter("\\A")
+            return if (scanner.hasNext()) scanner.next() else ""
+        }
+
         override fun onPreExecute() {
             progressBar?.visibility = View.VISIBLE
         }
 
         override fun doInBackground(vararg urls: String): String {
-
-            try {
-                return downloadUrl(urls[0])
+            return try {
+                downloadUrl(urls[0])
             } catch (e: IOException) {
-                return "Unable to retrieve web page."
+                "Unable to retrieve web page."
             }
-
         }
 
         override fun onPostExecute(result: String) {
