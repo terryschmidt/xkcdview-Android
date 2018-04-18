@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.2'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.transitiontose.xkcdviewand"
@@ -25,20 +25,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:27+'
-    //compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    //compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27+'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.12'
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
     // Required for local unit tests (JUnit 4 framework)
-    testCompile 'junit:junit:4.12'
-
+    testImplementation 'junit:junit:4.12'
     // Required for instrumented tests
-    androidTestCompile 'com.android.support:support-annotations:27.0.2'
-    androidTestCompile 'com.android.support.test:runner:1.0.1'
-
+    androidTestImplementation 'com.android.support:support-annotations:27.1.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
     testImplementation 'org.mockito:mockito-core:2.13.0'
     testImplementation 'org.robolectric:robolectric:3.0'
 }

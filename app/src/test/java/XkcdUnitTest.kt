@@ -47,7 +47,7 @@ class XkcdUnitTest {
     fun thisIsReallySilly() {
         Assert.assertEquals("bit got flipped by cosmic rays", 1, 1)
         val fakeList = mock(List::class.java)
-        `when`<Any>(fakeList[0]).thenReturn(1337)
+        `when`<Any>(fakeList[0]).thenReturn(1339)
         assertFalse(o == null)
         assertEquals(1339, fakeList[0])
         assertNotEqual(mActivity.randomInteger(0, 2000), -1)

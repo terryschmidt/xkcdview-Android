@@ -43,7 +43,7 @@ import java.util.*
 
 class XkcdActivity : Activity() {
 
-    private var relativeLayout: RelativeLayout? = null
+    private lateinit var relativeLayout: RelativeLayout
     private var getSpecificComicButton: Button? = null
     private var numberTextView: TextView? = null
     private var dateTextView: TextView? = null
@@ -59,7 +59,6 @@ class XkcdActivity : Activity() {
     private var isFirstQuery = true
     private var player: MediaPlayer? = null
     private var shouldPlaySound = true
-
     private val networkInfo: NetworkInfo?
         get() {
             val connMgr = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -115,8 +114,8 @@ class XkcdActivity : Activity() {
     }
 
     override fun onDestroy() {
-        Log.d("XkcdActivity", "onDestroy")
         super.onDestroy()
+        Log.d("XkcdActivity", "onDestroy")
     }
 
     override fun onPause() {
