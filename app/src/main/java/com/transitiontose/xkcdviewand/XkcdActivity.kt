@@ -24,6 +24,8 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -38,21 +40,21 @@ import java.util.*
 class XkcdActivity : Activity() {
 
     internal lateinit var relativeLayout: RelativeLayout
-    internal lateinit var getSpecificComicButton: Button
+    private lateinit var getSpecificComicButton: Button
     internal lateinit var numberTextView: TextView
     internal lateinit var dateTextView: TextView
     internal lateinit var titleTextView: TextView
-    internal var comicImageView: ImageView? = null // still needs to be nullable in the case that an AsyncTask tries to update the view during configuration change
+    internal lateinit var comicImageView: ImageView
     internal lateinit var comicNumTaker: EditText
     internal lateinit var progressBar: ProgressBar
     internal lateinit var shareIcon: ImageView
+    private lateinit var json: JSONObject
+    private var isFirstQuery = true
     private var currentDownloadImageTask : DownloadImageTask? = null
     private var currentDownloadWebpageTask: DownloadWebpageTask? = null
     private var maximumComicNumber = 1810
     private var counter = 1800
     private var urlToRequestDataFrom: String = "https://xkcd.com/info.0.json"
-    internal lateinit var json: JSONObject
-    internal var isFirstQuery = true
     private lateinit var player: MediaPlayer
     private var shouldPlaySound = true
     private val networkInfo: NetworkInfo
@@ -115,7 +117,7 @@ class XkcdActivity : Activity() {
     }
 
     fun isInPortraitMode() : Boolean {
-        if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             return true
         }
         return false
@@ -180,7 +182,7 @@ class XkcdActivity : Activity() {
 
     fun sharePressed(v: View?) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            val drawable = comicImageView?.drawable
+            val drawable = comicImageView.drawable
             if (drawable != null) {
                 val bitmap = (drawable as BitmapDrawable).bitmap
                 if (bitmap != null) {
@@ -271,9 +273,9 @@ class XkcdActivity : Activity() {
 
     fun savePressed(v: View) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            val drawable = comicImageView?.drawable
+            val drawable = comicImageView.drawable
             if (drawable != null) {
-                val bitmap = (comicImageView?.drawable as BitmapDrawable).bitmap
+                val bitmap = (comicImageView.drawable as BitmapDrawable).bitmap
                 if (bitmap != null) {
                     saveImage(bitmap)
                     Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show()
@@ -291,7 +293,7 @@ class XkcdActivity : Activity() {
             13 -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    val bitmap = (comicImageView?.drawable as BitmapDrawable).bitmap
+                    val bitmap = (comicImageView.drawable as BitmapDrawable).bitmap
                     saveImage(bitmap)
                     Toast.makeText(this, "Image saved to ~/xkcdview", Toast.LENGTH_SHORT).show()
                 } else {
@@ -382,7 +384,7 @@ class XkcdActivity : Activity() {
         currentDownloadWebpageTask?.execute(urlToRequestDataFrom)
     }
 
-    internal fun getComicImage(jsonArg: JSONObject) {
+    private fun getComicImage(jsonArg: JSONObject) {
         var imageURLtoFetch = ""
         try {
             imageURLtoFetch = jsonArg.getString("img")
@@ -394,11 +396,11 @@ class XkcdActivity : Activity() {
             val cancelled = currentDownloadImageTask?.cancel(true)
             Log.d(TAG, "currentDownloadImageTask cancelled: $cancelled")
         }
-        currentDownloadImageTask = DownloadImageTask(WeakReference(findViewById<View>(R.id.comicImageView) as ImageView), WeakReference(this))
+        currentDownloadImageTask = DownloadImageTask(WeakReference(this))
         currentDownloadImageTask?.execute(imageURLtoFetch)
     }
 
-    internal fun setComicDateText(jsonArg: JSONObject) {
+    private fun setComicDateText(jsonArg: JSONObject) {
         var day = ""
         var month = ""
         var year = ""
@@ -413,7 +415,7 @@ class XkcdActivity : Activity() {
         dateTextView.text = "$month/$day/$year"
     }
 
-    internal fun setComicTitleText(jsonArg: JSONObject) {
+    private fun setComicTitleText(jsonArg: JSONObject) {
         var title = ""
 
         try {
@@ -425,7 +427,7 @@ class XkcdActivity : Activity() {
         titleTextView.text = title
     }
 
-    internal fun setComicNumberText(jsonArg: JSONObject) {
+    private fun setComicNumberText(jsonArg: JSONObject) {
         var num = -1
 
         try {
@@ -437,7 +439,7 @@ class XkcdActivity : Activity() {
         numberTextView.text = "comic #: $num"
     }
 
-    internal fun firstQueryWork(jsonArg: JSONObject) {
+    private fun firstQueryWork(jsonArg: JSONObject) {
         var max = -1
 
         try {
@@ -474,6 +476,66 @@ class XkcdActivity : Activity() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    internal fun downloadWebpageFinished(result: String) {
+        try {
+            json = JSONObject(result)
+        } catch (j: org.json.JSONException) {
+            Log.d("downloadUrl", "JSONObject creation failed.")
+            Toast.makeText(applicationContext, "Could not fetch comic.", Toast.LENGTH_SHORT).show()
+            j.printStackTrace()
+            return
+        }
+
+        if (isFirstQuery) {
+            val tempjson = json
+            if (tempjson != null) {
+                firstQueryWork(tempjson)
+            }
+            //firstQueryWork(json)
+            isFirstQuery = false
+            if (isInPortraitMode()) {
+                getSpecificComicButton.isEnabled = true
+                comicNumTaker.isEnabled = true
+            }
+        }
+
+        val tempjson = json
+        if (tempjson != null) {
+            getComicImage(tempjson)
+            if (isInPortraitMode()) {
+                setComicNumberText(tempjson)
+                setComicTitleText(tempjson)
+                setComicDateText(tempjson)
+            }
+        }
+    }
+
+    internal fun downloadImageFinished(result: Bitmap?) {
+        if (isInPortraitMode()) {
+            progressBar.visibility = View.GONE
+        }
+        imageViewAnimatedChange(applicationContext, findViewById<View>(R.id.comicImageView) as ImageView?, result)
+    }
+
+    private fun imageViewAnimatedChange(context: Context?, comicImageView: ImageView?, newImage: Bitmap?) {
+        val fadeFirstImageOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
+        val fadeSecondImageIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
+        fadeFirstImageOut.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation) {}
+            override fun onAnimationRepeat(animation: Animation) {}
+            override fun onAnimationEnd(animation: Animation) {
+                comicImageView?.setImageBitmap(newImage)
+                fadeSecondImageIn.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation) {}
+                    override fun onAnimationRepeat(animation: Animation) {}
+                    override fun onAnimationEnd(animation: Animation) {}
+                })
+                comicImageView?.startAnimation(fadeSecondImageIn)
+            }
+        })
+        comicImageView?.startAnimation(fadeFirstImageOut)
     }
 
     companion object {

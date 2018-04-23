@@ -1,10 +1,7 @@
 package com.transitiontose.xkcdviewand
 
 import android.os.AsyncTask
-import android.util.Log
 import android.view.View
-import android.widget.Toast
-import org.json.JSONObject
 import java.io.IOException
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -16,7 +13,6 @@ internal class DownloadWebpageTask(private val xkcdActivity: WeakReference<XkcdA
     @Throws(IOException::class)
     private fun downloadUrl(myurl: String): String {
         var stream: InputStream? = null
-
         try {
             val url = URL(myurl)
             val conn = url.openConnection() as HttpURLConnection
@@ -55,36 +51,6 @@ internal class DownloadWebpageTask(private val xkcdActivity: WeakReference<XkcdA
     }
 
     override fun onPostExecute(result: String) {
-        try {
-            xkcdActivity?.get()?.json = JSONObject(result)
-        } catch (j: org.json.JSONException) {
-            Log.d("downloadUrl", "JSONObject creation failed.")
-            Toast.makeText(xkcdActivity?.get()?.applicationContext, "Could not fetch comic.", Toast.LENGTH_SHORT).show()
-            j.printStackTrace()
-            return
-        }
-
-        if (xkcdActivity?.get()?.isFirstQuery == true) {
-            val tempjson = xkcdActivity.get()?.json
-            if (tempjson != null) {
-                xkcdActivity.get()?.firstQueryWork(tempjson)
-            }
-            //firstQueryWork(json)
-            xkcdActivity.get()?.isFirstQuery = false
-            if (xkcdActivity.get()?.isInPortraitMode() == true) {
-                xkcdActivity.get()?.getSpecificComicButton?.isEnabled = true
-                xkcdActivity.get()?.comicNumTaker?.isEnabled = true
-            }
-        }
-
-        val tempjson = xkcdActivity?.get()?.json
-        if (tempjson != null) {
-            xkcdActivity?.get()?.getComicImage(tempjson)
-            if (xkcdActivity?.get()?.isInPortraitMode() == true) {
-                xkcdActivity.get()?.setComicNumberText(tempjson)
-                xkcdActivity.get()?.setComicTitleText(tempjson)
-                xkcdActivity.get()?.setComicDateText(tempjson)
-            }
-        }
+        xkcdActivity?.get()?.downloadWebpageFinished(result)
     }
 }
