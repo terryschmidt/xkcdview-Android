@@ -466,8 +466,4 @@ class XkcdActivity : Activity() {
     companion object {
         private const val TAG = "XkcdActivity"
     }
-
-    protected fun finalize() {
-        Log.d(TAG, "activity being garbage collected...")
-    }
 }
