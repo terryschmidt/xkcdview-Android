@@ -516,26 +516,26 @@ class XkcdActivity : Activity() {
         if (isInPortraitMode()) {
             progressBar.visibility = View.GONE
         }
-        imageViewAnimatedChange(applicationContext, findViewById<View>(R.id.comicImageView) as ImageView?, result)
+        imageViewAnimatedChange(applicationContext, findViewById<View>(R.id.comicImageView) as ImageView, result)
     }
 
-    private fun imageViewAnimatedChange(context: Context?, comicImageView: ImageView?, newImage: Bitmap?) {
+    private fun imageViewAnimatedChange(context: Context?, comicImageView: ImageView, newImage: Bitmap?) {
         val fadeFirstImageOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
         val fadeSecondImageIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
         fadeFirstImageOut.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {}
             override fun onAnimationRepeat(animation: Animation) {}
             override fun onAnimationEnd(animation: Animation) {
-                comicImageView?.setImageBitmap(newImage)
+                comicImageView.setImageBitmap(newImage)
                 fadeSecondImageIn.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(animation: Animation) {}
                     override fun onAnimationRepeat(animation: Animation) {}
                     override fun onAnimationEnd(animation: Animation) {}
                 })
-                comicImageView?.startAnimation(fadeSecondImageIn)
+                comicImageView.startAnimation(fadeSecondImageIn)
             }
         })
-        comicImageView?.startAnimation(fadeFirstImageOut)
+        comicImageView.startAnimation(fadeFirstImageOut)
     }
 
     companion object {
