@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
@@ -22,7 +23,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatDelegate
 import android.util.Log
 import android.view.View
 import android.view.animation.Animation
@@ -37,6 +37,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
@@ -44,22 +45,22 @@ import java.util.*
 class XkcdActivity : Activity() {
 
     private lateinit var relativeLayout: RelativeLayout
-    private var getSpecificComicButton: Button? = null
-    private var numberTextView: TextView? = null
-    private var dateTextView: TextView? = null
-    private var titleTextView: TextView? = null
-    private var comicImageView: ImageView? = null
-    private var comicNumTaker: EditText? = null
-    private var progressBar: ProgressBar? = null
-    private var shareIcon: ImageView? = null
+    private lateinit var getSpecificComicButton: Button
+    private lateinit var numberTextView: TextView
+    private lateinit var dateTextView: TextView
+    private lateinit var titleTextView: TextView
+    private var comicImageView: ImageView? = null // still needs to be nullable in the case that an AsyncTask tries to update the view during configuration change
+    private lateinit var comicNumTaker: EditText
+    private lateinit var progressBar: ProgressBar
+    private lateinit var shareIcon: ImageView
     private var maximumComicNumber = 1810
     private var counter = 1800
-    private var urlToRequestDataFrom: String? = "https://xkcd.com/info.0.json"
-    private var json: JSONObject? = null
+    private var urlToRequestDataFrom: String = "https://xkcd.com/info.0.json"
+    private lateinit var json: JSONObject
     private var isFirstQuery = true
-    private var player: MediaPlayer? = null
+    private lateinit var player: MediaPlayer
     private var shouldPlaySound = true
-    private val networkInfo: NetworkInfo?
+    private val networkInfo: NetworkInfo
         get() {
             val connMgr = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             return connMgr.activeNetworkInfo
@@ -68,32 +69,35 @@ class XkcdActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.AppTheme)
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         Log.d("XkcdActivity", "onCreate")
         setContentView(R.layout.activity_main)
 
         relativeLayout = findViewById<View>(R.id.relativeLayout) as RelativeLayout
-        relativeLayout?.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+        relativeLayout.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
                 hideKeyboard()
             }
         }
 
-        getSpecificComicButton = findViewById(R.id.getSpecificComic)
-        getSpecificComicButton?.isEnabled = false
         comicImageView = findViewById(R.id.comicImageView)
-        comicNumTaker = findViewById(R.id.comicNumTaker)
-        comicNumTaker?.isEnabled = false
-        progressBar = findViewById(R.id.progressBar)
-        progressBar?.indeterminateDrawable?.setColorFilter(resources.getColor(white), android.graphics.PorterDuff.Mode.SRC_IN)
-        setEditTextOptions()
-        comicNumTaker?.background?.mutate()?.setColorFilter(resources.getColor(white), PorterDuff.Mode.SRC_ATOP)
-        shareIcon = findViewById(R.id.shareIcon)
-        numberTextView = findViewById(R.id.numberTextView)
-        dateTextView = findViewById(R.id.dateTextView)
-        titleTextView = findViewById(R.id.titleTextView)
         player = MediaPlayer()
         json = JSONObject()
+
+        if (isInPortraitMode()) {
+            getSpecificComicButton = findViewById(R.id.getSpecificComic)
+            getSpecificComicButton.isEnabled = false
+            comicNumTaker = findViewById(R.id.comicNumTaker)
+            comicNumTaker.isEnabled = false
+            progressBar = findViewById(R.id.progressBar)
+            progressBar.indeterminateDrawable?.setColorFilter(resources.getColor(white), android.graphics.PorterDuff.Mode.SRC_IN)
+            comicNumTaker.background?.mutate()?.setColorFilter(resources.getColor(white), PorterDuff.Mode.SRC_ATOP)
+            setEditTextOptions()
+            shareIcon = findViewById(R.id.shareIcon)
+            numberTextView = findViewById(R.id.numberTextView)
+            dateTextView = findViewById(R.id.dateTextView)
+            titleTextView = findViewById(R.id.titleTextView)
+        }
 
         val initialURL = "https://xkcd.com/info.0.json"
         val networkInfo = networkInfo
@@ -103,19 +107,29 @@ class XkcdActivity : Activity() {
             counter = savedInstanceState.getInt("oldCounter")
             urlToRequestDataFrom = savedInstanceState.getString("oldURLtoRequestDataFrom")
             isFirstQuery = savedInstanceState.getBoolean("oldisFirstQuery")
-            getSpecificComicButton?.isEnabled = true
-            comicNumTaker?.isEnabled = true
-            DownloadWebpageTask().execute(urlToRequestDataFrom)
+            if (isInPortraitMode()) {
+                getSpecificComicButton.isEnabled = true
+                comicNumTaker.isEnabled = true
+            }
+            DownloadWebpageTask(WeakReference(this)).execute(urlToRequestDataFrom)
         } else if (networkInfo != null && networkInfo.isConnected && savedInstanceState == null) {
-            DownloadWebpageTask().execute(initialURL)
+            DownloadWebpageTask(WeakReference(this)).execute(initialURL)
         } else if (networkInfo == null) {
             networkToast()
         }
     }
 
+    fun isInPortraitMode() : Boolean {
+        if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return true
+        }
+        return false
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d("XkcdActivity", "onDestroy")
+        player.release()
     }
 
     override fun onPause() {
@@ -144,12 +158,12 @@ class XkcdActivity : Activity() {
     }
 
     private fun setEditTextOptions() {
-        comicNumTaker?.imeOptions = EditorInfo.IME_ACTION_DONE // collapse keyboard when done is pressed
+        comicNumTaker.imeOptions = EditorInfo.IME_ACTION_DONE // collapse keyboard when done is pressed
 
-        comicNumTaker?.setOnEditorActionListener { v, actionId, event ->
+        comicNumTaker.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                comicNumTaker?.clearFocus()
-                relativeLayout?.requestFocus()
+                comicNumTaker.clearFocus()
+                relativeLayout.requestFocus()
             }
             false
         }
@@ -304,7 +318,7 @@ class XkcdActivity : Activity() {
 
     private fun saveImage(finalBitmap: Bitmap) {
         val root = Environment.getExternalStorageDirectory().toString()
-        val myDir = File(root + "/xkcdview")
+        val myDir = File("$root/xkcdview")
         myDir.mkdirs()
         val fname = "Image-$counter.jpg"
         val file = File(myDir, fname)
@@ -325,9 +339,9 @@ class XkcdActivity : Activity() {
         val comicToGet: Int
 
         try {
-            comicToGet = Integer.parseInt(comicNumTaker?.text.toString())
+            comicToGet = Integer.parseInt(comicNumTaker.text.toString())
         } catch (e: IllegalArgumentException) {
-            relativeLayout?.requestFocus()
+            relativeLayout.requestFocus()
             invalidToast()
             return
         }
@@ -352,7 +366,7 @@ class XkcdActivity : Activity() {
             networkToast()
         }
 
-        relativeLayout?.requestFocus()
+        relativeLayout.requestFocus()
     }
 
     private fun hideKeyboard() {
@@ -364,7 +378,7 @@ class XkcdActivity : Activity() {
     }
 
     private fun getData() {
-        DownloadWebpageTask().execute(urlToRequestDataFrom)
+        DownloadWebpageTask(WeakReference(this)).execute(urlToRequestDataFrom)
     }
 
     private fun getComicImage(jsonArg: JSONObject) {
@@ -375,7 +389,7 @@ class XkcdActivity : Activity() {
             j.printStackTrace()
         }
 
-        DownloadImageTask(findViewById<View>(R.id.comicImageView) as ImageView).execute(imageURLtoFetch)
+        DownloadImageTask(WeakReference(findViewById<View>(R.id.comicImageView) as ImageView), WeakReference(this)).execute(imageURLtoFetch)
     }
 
     private fun getComicDate(jsonArg: JSONObject) {
@@ -390,7 +404,7 @@ class XkcdActivity : Activity() {
             j.printStackTrace()
         }
 
-        dateTextView?.text = "$month/$day/$year"
+        dateTextView.text = "$month/$day/$year"
     }
 
     private fun getComicTitle(jsonArg: JSONObject) {
@@ -402,7 +416,7 @@ class XkcdActivity : Activity() {
             Log.d("getComicTitle", "Can't parse title.")
         }
 
-        titleTextView?.text = title
+        titleTextView.text = title
     }
 
     private fun getComicNumber(jsonArg: JSONObject) {
@@ -414,7 +428,7 @@ class XkcdActivity : Activity() {
             Log.d("getComicNumber", "Can't parse number.")
         }
 
-        numberTextView?.text = "comic #: " + num
+        numberTextView.text = "comic #: $num"
     }
 
     private fun firstQueryWork(jsonArg: JSONObject) {
@@ -439,16 +453,16 @@ class XkcdActivity : Activity() {
     }
 
     private fun playSound() {
-        if (player?.isPlaying ?: false) {
-            player?.stop()
+        if (player.isPlaying) {
+            player.stop()
         }
 
         try {
-            player?.reset()
+            player.reset()
             val afd: AssetFileDescriptor = assets.openFd("sound.wav")
-            player?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-            player?.prepare()
-            player?.start()
+            player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            player.prepare()
+            player.start()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         } catch (e: IOException) {
@@ -457,7 +471,7 @@ class XkcdActivity : Activity() {
     }
 
     // task for downloading json from webpage
-    private inner class DownloadWebpageTask : AsyncTask<String, Void, String>() {
+    private class DownloadWebpageTask(private val xkcdActivity: WeakReference<XkcdActivity>?) : AsyncTask<String, Void, String>() {
 
         @Throws(IOException::class)
         private fun downloadUrl(myurl: String): String {
@@ -487,7 +501,9 @@ class XkcdActivity : Activity() {
         }
 
         override fun onPreExecute() {
-            progressBar?.visibility = View.VISIBLE
+            if (xkcdActivity?.get()?.isInPortraitMode() == true) {
+                xkcdActivity.get()?.progressBar?.visibility = View.VISIBLE
+            }
         }
 
         override fun doInBackground(vararg urls: String): String {
@@ -500,37 +516,41 @@ class XkcdActivity : Activity() {
 
         override fun onPostExecute(result: String) {
             try {
-                json = JSONObject(result)
+                xkcdActivity?.get()?.json = JSONObject(result)
             } catch (j: org.json.JSONException) {
                 Log.d("downloadUrl", "JSONObject creation failed.")
-                Toast.makeText(applicationContext, "Could not fetch comic.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(xkcdActivity?.get()?.applicationContext, "Could not fetch comic.", Toast.LENGTH_SHORT).show()
                 j.printStackTrace()
                 return
             }
 
-            if (isFirstQuery) {
-                val tempjson = json
+            if (xkcdActivity?.get()?.isFirstQuery == true) {
+                val tempjson = xkcdActivity.get()?.json
                 if (tempjson != null) {
-                    firstQueryWork(tempjson)
+                    xkcdActivity.get()?.firstQueryWork(tempjson)
                 }
                 //firstQueryWork(json)
-                isFirstQuery = false
-                getSpecificComicButton?.isEnabled = true
-                comicNumTaker?.isEnabled = true
+                xkcdActivity.get()?.isFirstQuery = false
+                if (xkcdActivity.get()?.isInPortraitMode() == true) {
+                    xkcdActivity.get()?.getSpecificComicButton?.isEnabled = true
+                    xkcdActivity.get()?.comicNumTaker?.isEnabled = true
+                }
             }
 
-            val tempjson = json
+            val tempjson = xkcdActivity?.get()?.json
             if (tempjson != null) {
-                getComicImage(tempjson)
-                getComicNumber(tempjson)
-                getComicTitle(tempjson)
-                getComicDate(tempjson)
+                xkcdActivity?.get()?.getComicImage(tempjson)
+                if (xkcdActivity?.get()?.isInPortraitMode() == true) {
+                    xkcdActivity.get()?.getComicNumber(tempjson)
+                    xkcdActivity.get()?.getComicTitle(tempjson)
+                    xkcdActivity.get()?.getComicDate(tempjson)
+                }
             }
         }
     }
 
     // task for downloading the comic image
-    private inner class DownloadImageTask(internal var bmImage: ImageView?) : AsyncTask<String?, Int?, Bitmap?>() {
+    private class DownloadImageTask(private val bmImage: WeakReference<ImageView>?, private val xkcdActivity : WeakReference<XkcdActivity>?) : AsyncTask<String?, Int?, Bitmap?>() {
 
         override fun onPreExecute() {
 
@@ -551,31 +571,29 @@ class XkcdActivity : Activity() {
         }
 
         override fun onPostExecute(result: Bitmap?) {
-            progressBar?.visibility = View.GONE
-            imageViewAnimatedChange(applicationContext, bmImage, result)
+            if (xkcdActivity?.get()?.isInPortraitMode() == true) {
+                xkcdActivity.get()?.progressBar?.visibility = View.GONE
+            }
+            imageViewAnimatedChange(xkcdActivity?.get()?.applicationContext, bmImage, result)
         }
 
-        private fun imageViewAnimatedChange(c: Context, v: ImageView?, new_image: Bitmap?) {
-            val fadeFirstImageOut = AnimationUtils.loadAnimation(c, android.R.anim.fade_out)
-            val fadeSecondImageIn = AnimationUtils.loadAnimation(c, android.R.anim.fade_in)
+        private fun imageViewAnimatedChange(context: Context?, comicImageView: WeakReference<ImageView>?, newImage: Bitmap?) {
+            val fadeFirstImageOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
+            val fadeSecondImageIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
             fadeFirstImageOut.setAnimationListener(object : AnimationListener {
                 override fun onAnimationStart(animation: Animation) {}
-
                 override fun onAnimationRepeat(animation: Animation) {}
-
                 override fun onAnimationEnd(animation: Animation) {
-                    v?.setImageBitmap(new_image)
+                    comicImageView?.get()?.setImageBitmap(newImage)
                     fadeSecondImageIn.setAnimationListener(object : AnimationListener {
                         override fun onAnimationStart(animation: Animation) {}
-
                         override fun onAnimationRepeat(animation: Animation) {}
-
                         override fun onAnimationEnd(animation: Animation) {}
                     })
-                    v?.startAnimation(fadeSecondImageIn)
+                    comicImageView?.get()?.startAnimation(fadeSecondImageIn)
                 }
             })
-            v?.startAnimation(fadeFirstImageOut)
+            comicImageView?.get()?.startAnimation(fadeFirstImageOut)
         }
     }
 }
