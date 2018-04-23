@@ -35,8 +35,8 @@ internal class DownloadWebpageTask(private val xkcdActivity: WeakReference<XkcdA
         }
     }
 
-    private fun convertStreamToString(`is`: InputStream?): String {
-        val scanner = Scanner(`is`!!, "UTF-8").useDelimiter("\\A")
+    private fun convertStreamToString(inputStream: InputStream?): String {
+        val scanner = Scanner(inputStream!!, "UTF-8").useDelimiter("\\A")
         return if (scanner.hasNext()) scanner.next() else ""
     }
 

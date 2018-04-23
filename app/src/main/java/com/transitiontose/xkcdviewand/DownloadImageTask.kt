@@ -17,8 +17,8 @@ internal class DownloadImageTask(private val bmImage: WeakReference<ImageView>?,
         val urldisplay = urls[0]
         var image: Bitmap? = null
         try {
-            val `in` = java.net.URL(urldisplay).openStream()
-            image = BitmapFactory.decodeStream(`in`)
+            val stream = java.net.URL(urldisplay).openStream()
+            image = BitmapFactory.decodeStream(stream)
         } catch (e: Exception) {
             Log.e("Error", e.message)
             e.printStackTrace()
