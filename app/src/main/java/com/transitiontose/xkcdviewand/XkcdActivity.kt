@@ -16,6 +16,7 @@ import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -45,6 +46,8 @@ class XkcdActivity : Activity() {
     internal lateinit var comicNumTaker: EditText
     internal lateinit var progressBar: ProgressBar
     internal lateinit var shareIcon: ImageView
+    private var currentDownloadImageTask : DownloadImageTask? = null
+    private var currentDownloadWebpageTask: DownloadWebpageTask? = null
     private var maximumComicNumber = 1810
     private var counter = 1800
     private var urlToRequestDataFrom: String = "https://xkcd.com/info.0.json"
@@ -371,7 +374,12 @@ class XkcdActivity : Activity() {
     }
 
     private fun getData() {
-        DownloadWebpageTask(WeakReference(this)).execute(urlToRequestDataFrom)
+        if (currentDownloadWebpageTask?.status == AsyncTask.Status.PENDING || currentDownloadWebpageTask?.status == AsyncTask.Status.RUNNING) {
+            val cancelled = currentDownloadWebpageTask?.cancel(true)
+            Log.d(TAG, "currentDownloadWebpageTask cancelled: $cancelled")
+        }
+        currentDownloadWebpageTask = DownloadWebpageTask(WeakReference(this))
+        currentDownloadWebpageTask?.execute(urlToRequestDataFrom)
     }
 
     internal fun getComicImage(jsonArg: JSONObject) {
@@ -382,7 +390,12 @@ class XkcdActivity : Activity() {
             j.printStackTrace()
         }
 
-        DownloadImageTask(WeakReference(findViewById<View>(R.id.comicImageView) as ImageView), WeakReference(this)).execute(imageURLtoFetch)
+        if (currentDownloadImageTask?.status == AsyncTask.Status.PENDING || currentDownloadImageTask?.status == AsyncTask.Status.RUNNING) {
+            val cancelled = currentDownloadImageTask?.cancel(true)
+            Log.d(TAG, "currentDownloadImageTask cancelled: $cancelled")
+        }
+        currentDownloadImageTask = DownloadImageTask(WeakReference(findViewById<View>(R.id.comicImageView) as ImageView), WeakReference(this))
+        currentDownloadImageTask?.execute(imageURLtoFetch)
     }
 
     internal fun getComicDate(jsonArg: JSONObject) {
