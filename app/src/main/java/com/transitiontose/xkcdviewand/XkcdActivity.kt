@@ -62,7 +62,7 @@ class XkcdActivity : Activity() {
         super.onCreate(savedInstanceState)
         setTheme(R.style.AppTheme)
         //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        Log.d("XkcdActivity", "onCreate")
+        Log.d(TAG, "onCreate")
         setContentView(R.layout.activity_main)
 
         relativeLayout = findViewById<View>(R.id.relativeLayout) as RelativeLayout
@@ -120,34 +120,34 @@ class XkcdActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("XkcdActivity", "onDestroy")
+        Log.d(TAG, "onDestroy")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d("XkcdActivity", "onPause")
+        Log.d(TAG, "onPause")
         player.release()
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d("XkcdActivity", "onResume")
+        Log.d(TAG, "onResume")
         player = MediaPlayer()
     }
 
     override fun onRestart() {
         super.onRestart()
-        Log.d("XkcdActivity", "onRestart")
+        Log.d(TAG, "onRestart")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d("XkcdActivity", "onStart")
+        Log.d(TAG, "onStart")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d("XkcdActivity", "onStop")
+        Log.d(TAG, "onStop")
     }
 
     private fun setEditTextOptions() {
@@ -406,7 +406,7 @@ class XkcdActivity : Activity() {
         try {
             title = jsonArg.getString("title")
         } catch (j: org.json.JSONException) {
-            Log.d("getComicTitle", "Can't parse title.")
+            Log.d(TAG, "Can't parse title.")
         }
 
         titleTextView.text = title
@@ -418,7 +418,7 @@ class XkcdActivity : Activity() {
         try {
             num = jsonArg.getInt("num")
         } catch (j: org.json.JSONException) {
-            Log.d("getComicNumber", "Can't parse number.")
+            Log.d(TAG, "Can't parse comic number.")
         }
 
         numberTextView.text = "comic #: $num"
@@ -430,7 +430,7 @@ class XkcdActivity : Activity() {
         try {
             max = jsonArg.getInt("num")
         } catch (j: org.json.JSONException) {
-            Log.d("firstQueryWork", "Can't parse number.")
+            Log.d(TAG, "Can't parse number.")
         }
 
         maximumComicNumber = max
@@ -461,5 +461,13 @@ class XkcdActivity : Activity() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    companion object {
+        private const val TAG = "XkcdActivity"
+    }
+
+    protected fun finalize() {
+        Log.d(TAG, "activity being garbage collected...")
     }
 }
