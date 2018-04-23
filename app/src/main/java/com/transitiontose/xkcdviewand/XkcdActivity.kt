@@ -215,7 +215,7 @@ class XkcdActivity : Activity() {
             if (isFirstQuery) {
                 urlToRequestDataFrom = "https://xkcd.com/info.0.json"
             }
-            getData()
+            getWebpageData()
         } else {
             networkToast()
         }
@@ -238,7 +238,7 @@ class XkcdActivity : Activity() {
                 if (isFirstQuery) {
                     urlToRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
-                getData()
+                getWebpageData()
             } else {
                 invalidToast()
             }
@@ -260,7 +260,7 @@ class XkcdActivity : Activity() {
                 if (isFirstQuery) {
                     urlToRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
-                getData()
+                getWebpageData()
             } else {
                 invalidToast()
             }
@@ -354,7 +354,7 @@ class XkcdActivity : Activity() {
                 if (isFirstQuery) {
                     urlToRequestDataFrom = "https://xkcd.com/info.0.json"
                 }
-                getData()
+                getWebpageData()
             } else {
                 invalidToast()
             }
@@ -373,7 +373,7 @@ class XkcdActivity : Activity() {
         }
     }
 
-    private fun getData() {
+    private fun getWebpageData() {
         if (currentDownloadWebpageTask?.status == AsyncTask.Status.PENDING || currentDownloadWebpageTask?.status == AsyncTask.Status.RUNNING) {
             val cancelled = currentDownloadWebpageTask?.cancel(true)
             Log.d(TAG, "currentDownloadWebpageTask cancelled: $cancelled")
@@ -398,7 +398,7 @@ class XkcdActivity : Activity() {
         currentDownloadImageTask?.execute(imageURLtoFetch)
     }
 
-    internal fun getComicDate(jsonArg: JSONObject) {
+    internal fun setComicDateText(jsonArg: JSONObject) {
         var day = ""
         var month = ""
         var year = ""
@@ -413,7 +413,7 @@ class XkcdActivity : Activity() {
         dateTextView.text = "$month/$day/$year"
     }
 
-    internal fun getComicTitle(jsonArg: JSONObject) {
+    internal fun setComicTitleText(jsonArg: JSONObject) {
         var title = ""
 
         try {
@@ -425,7 +425,7 @@ class XkcdActivity : Activity() {
         titleTextView.text = title
     }
 
-    internal fun getComicNumber(jsonArg: JSONObject) {
+    internal fun setComicNumberText(jsonArg: JSONObject) {
         var num = -1
 
         try {

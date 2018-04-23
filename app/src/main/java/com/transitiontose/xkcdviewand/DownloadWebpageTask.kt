@@ -81,9 +81,9 @@ internal class DownloadWebpageTask(private val xkcdActivity: WeakReference<XkcdA
         if (tempjson != null) {
             xkcdActivity?.get()?.getComicImage(tempjson)
             if (xkcdActivity?.get()?.isInPortraitMode() == true) {
-                xkcdActivity.get()?.getComicNumber(tempjson)
-                xkcdActivity.get()?.getComicTitle(tempjson)
-                xkcdActivity.get()?.getComicDate(tempjson)
+                xkcdActivity.get()?.setComicNumberText(tempjson)
+                xkcdActivity.get()?.setComicTitleText(tempjson)
+                xkcdActivity.get()?.setComicDateText(tempjson)
             }
         }
     }
