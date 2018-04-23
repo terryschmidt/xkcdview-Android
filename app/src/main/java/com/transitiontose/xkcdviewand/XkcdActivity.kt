@@ -10,14 +10,12 @@ import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -25,9 +23,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.Animation.AnimationListener
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -36,28 +31,25 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 class XkcdActivity : Activity() {
 
-    private lateinit var relativeLayout: RelativeLayout
-    private lateinit var getSpecificComicButton: Button
-    private lateinit var numberTextView: TextView
-    private lateinit var dateTextView: TextView
-    private lateinit var titleTextView: TextView
-    private var comicImageView: ImageView? = null // still needs to be nullable in the case that an AsyncTask tries to update the view during configuration change
-    private lateinit var comicNumTaker: EditText
-    private lateinit var progressBar: ProgressBar
-    private lateinit var shareIcon: ImageView
+    internal lateinit var relativeLayout: RelativeLayout
+    internal lateinit var getSpecificComicButton: Button
+    internal lateinit var numberTextView: TextView
+    internal lateinit var dateTextView: TextView
+    internal lateinit var titleTextView: TextView
+    internal var comicImageView: ImageView? = null // still needs to be nullable in the case that an AsyncTask tries to update the view during configuration change
+    internal lateinit var comicNumTaker: EditText
+    internal lateinit var progressBar: ProgressBar
+    internal lateinit var shareIcon: ImageView
     private var maximumComicNumber = 1810
     private var counter = 1800
     private var urlToRequestDataFrom: String = "https://xkcd.com/info.0.json"
-    private lateinit var json: JSONObject
-    private var isFirstQuery = true
+    internal lateinit var json: JSONObject
+    internal var isFirstQuery = true
     private lateinit var player: MediaPlayer
     private var shouldPlaySound = true
     private val networkInfo: NetworkInfo
@@ -129,17 +121,18 @@ class XkcdActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d("XkcdActivity", "onDestroy")
-        player.release()
     }
 
     override fun onPause() {
         super.onPause()
         Log.d("XkcdActivity", "onPause")
+        player.release()
     }
 
     override fun onResume() {
         super.onResume()
         Log.d("XkcdActivity", "onResume")
+        player = MediaPlayer()
     }
 
     override fun onRestart() {
@@ -381,7 +374,7 @@ class XkcdActivity : Activity() {
         DownloadWebpageTask(WeakReference(this)).execute(urlToRequestDataFrom)
     }
 
-    private fun getComicImage(jsonArg: JSONObject) {
+    internal fun getComicImage(jsonArg: JSONObject) {
         var imageURLtoFetch = ""
         try {
             imageURLtoFetch = jsonArg.getString("img")
@@ -392,7 +385,7 @@ class XkcdActivity : Activity() {
         DownloadImageTask(WeakReference(findViewById<View>(R.id.comicImageView) as ImageView), WeakReference(this)).execute(imageURLtoFetch)
     }
 
-    private fun getComicDate(jsonArg: JSONObject) {
+    internal fun getComicDate(jsonArg: JSONObject) {
         var day = ""
         var month = ""
         var year = ""
@@ -407,7 +400,7 @@ class XkcdActivity : Activity() {
         dateTextView.text = "$month/$day/$year"
     }
 
-    private fun getComicTitle(jsonArg: JSONObject) {
+    internal fun getComicTitle(jsonArg: JSONObject) {
         var title = ""
 
         try {
@@ -419,7 +412,7 @@ class XkcdActivity : Activity() {
         titleTextView.text = title
     }
 
-    private fun getComicNumber(jsonArg: JSONObject) {
+    internal fun getComicNumber(jsonArg: JSONObject) {
         var num = -1
 
         try {
@@ -431,7 +424,7 @@ class XkcdActivity : Activity() {
         numberTextView.text = "comic #: $num"
     }
 
-    private fun firstQueryWork(jsonArg: JSONObject) {
+    internal fun firstQueryWork(jsonArg: JSONObject) {
         var max = -1
 
         try {
@@ -467,133 +460,6 @@ class XkcdActivity : Activity() {
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
-        }
-    }
-
-    // task for downloading json from webpage
-    private class DownloadWebpageTask(private val xkcdActivity: WeakReference<XkcdActivity>?) : AsyncTask<String, Void, String>() {
-
-        @Throws(IOException::class)
-        private fun downloadUrl(myurl: String): String {
-            var stream: InputStream? = null
-
-            try {
-                val url = URL(myurl)
-                val conn = url.openConnection() as HttpURLConnection
-                conn.readTimeout = 10000
-                conn.connectTimeout = 15000
-                conn.requestMethod = "GET"
-                conn.doInput = true
-                conn.connect()
-                //int response = conn.getResponseCode();
-                stream = conn.inputStream
-                return convertStreamToString(stream)
-            } finally {
-                if (stream != null) {
-                    stream.close()
-                }
-            }
-        }
-
-        private fun convertStreamToString(`is`: InputStream?): String {
-            val scanner = Scanner(`is`!!, "UTF-8").useDelimiter("\\A")
-            return if (scanner.hasNext()) scanner.next() else ""
-        }
-
-        override fun onPreExecute() {
-            if (xkcdActivity?.get()?.isInPortraitMode() == true) {
-                xkcdActivity.get()?.progressBar?.visibility = View.VISIBLE
-            }
-        }
-
-        override fun doInBackground(vararg urls: String): String {
-            return try {
-                downloadUrl(urls[0])
-            } catch (e: IOException) {
-                "Unable to retrieve web page."
-            }
-        }
-
-        override fun onPostExecute(result: String) {
-            try {
-                xkcdActivity?.get()?.json = JSONObject(result)
-            } catch (j: org.json.JSONException) {
-                Log.d("downloadUrl", "JSONObject creation failed.")
-                Toast.makeText(xkcdActivity?.get()?.applicationContext, "Could not fetch comic.", Toast.LENGTH_SHORT).show()
-                j.printStackTrace()
-                return
-            }
-
-            if (xkcdActivity?.get()?.isFirstQuery == true) {
-                val tempjson = xkcdActivity.get()?.json
-                if (tempjson != null) {
-                    xkcdActivity.get()?.firstQueryWork(tempjson)
-                }
-                //firstQueryWork(json)
-                xkcdActivity.get()?.isFirstQuery = false
-                if (xkcdActivity.get()?.isInPortraitMode() == true) {
-                    xkcdActivity.get()?.getSpecificComicButton?.isEnabled = true
-                    xkcdActivity.get()?.comicNumTaker?.isEnabled = true
-                }
-            }
-
-            val tempjson = xkcdActivity?.get()?.json
-            if (tempjson != null) {
-                xkcdActivity?.get()?.getComicImage(tempjson)
-                if (xkcdActivity?.get()?.isInPortraitMode() == true) {
-                    xkcdActivity.get()?.getComicNumber(tempjson)
-                    xkcdActivity.get()?.getComicTitle(tempjson)
-                    xkcdActivity.get()?.getComicDate(tempjson)
-                }
-            }
-        }
-    }
-
-    // task for downloading the comic image
-    private class DownloadImageTask(private val bmImage: WeakReference<ImageView>?, private val xkcdActivity : WeakReference<XkcdActivity>?) : AsyncTask<String?, Int?, Bitmap?>() {
-
-        override fun onPreExecute() {
-
-        }
-
-        override fun doInBackground(vararg urls: String?): Bitmap? {
-            val urldisplay = urls[0]
-            var image: Bitmap? = null
-            try {
-                val `in` = java.net.URL(urldisplay).openStream()
-                image = BitmapFactory.decodeStream(`in`)
-            } catch (e: Exception) {
-                Log.e("Error", e.message)
-                e.printStackTrace()
-            }
-
-            return image
-        }
-
-        override fun onPostExecute(result: Bitmap?) {
-            if (xkcdActivity?.get()?.isInPortraitMode() == true) {
-                xkcdActivity.get()?.progressBar?.visibility = View.GONE
-            }
-            imageViewAnimatedChange(xkcdActivity?.get()?.applicationContext, bmImage, result)
-        }
-
-        private fun imageViewAnimatedChange(context: Context?, comicImageView: WeakReference<ImageView>?, newImage: Bitmap?) {
-            val fadeFirstImageOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
-            val fadeSecondImageIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
-            fadeFirstImageOut.setAnimationListener(object : AnimationListener {
-                override fun onAnimationStart(animation: Animation) {}
-                override fun onAnimationRepeat(animation: Animation) {}
-                override fun onAnimationEnd(animation: Animation) {
-                    comicImageView?.get()?.setImageBitmap(newImage)
-                    fadeSecondImageIn.setAnimationListener(object : AnimationListener {
-                        override fun onAnimationStart(animation: Animation) {}
-                        override fun onAnimationRepeat(animation: Animation) {}
-                        override fun onAnimationEnd(animation: Animation) {}
-                    })
-                    comicImageView?.get()?.startAnimation(fadeSecondImageIn)
-                }
-            })
-            comicImageView?.get()?.startAnimation(fadeFirstImageOut)
         }
     }
 }
