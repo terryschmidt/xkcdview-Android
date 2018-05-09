@@ -3,7 +3,6 @@ package com.transitiontose.xkcdviewand
 //import retrofit2.Retrofit;
 import android.Manifest
 import android.R.color.white
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,6 +21,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.animation.Animation
@@ -37,17 +37,17 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.*
 
-class XkcdActivity : Activity() {
+class XkcdActivity : AppCompatActivity() {
 
-    internal lateinit var relativeLayout: RelativeLayout
+    private lateinit var relativeLayout: RelativeLayout
     private lateinit var getSpecificComicButton: Button
-    internal lateinit var numberTextView: TextView
-    internal lateinit var dateTextView: TextView
-    internal lateinit var titleTextView: TextView
-    internal lateinit var comicImageView: ImageView
-    internal lateinit var comicNumTaker: EditText
-    internal lateinit var progressBar: ProgressBar
-    internal lateinit var shareIcon: ImageView
+    private lateinit var numberTextView: TextView
+    private lateinit var dateTextView: TextView
+    private lateinit var titleTextView: TextView
+    private lateinit var comicImageView: ImageView
+    private lateinit var comicNumTaker: EditText
+    lateinit var progressBar: ProgressBar
+    private lateinit var shareIcon: ImageView
     private lateinit var json: JSONObject
     private var isFirstQuery = true
     private var currentDownloadImageTask : DownloadImageTask? = null
@@ -97,7 +97,6 @@ class XkcdActivity : Activity() {
         }
 
         val initialURL = "https://xkcd.com/info.0.json"
-        val networkInfo = networkInfo
 
         if (networkInfo != null && networkInfo.isConnected && savedInstanceState != null) {
             maximumComicNumber = savedInstanceState.getInt("oldMaximumComicNumber")
@@ -158,7 +157,7 @@ class XkcdActivity : Activity() {
     private fun setEditTextOptions() {
         comicNumTaker.imeOptions = EditorInfo.IME_ACTION_DONE // collapse keyboard when done is pressed
 
-        comicNumTaker.setOnEditorActionListener { v, actionId, event ->
+        comicNumTaker.setOnEditorActionListener { _, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 comicNumTaker.clearFocus()
                 relativeLayout.requestFocus()
@@ -205,8 +204,6 @@ class XkcdActivity : Activity() {
     }
 
     fun randomComic(v: View) {
-        val networkInfo = networkInfo
-
         if (networkInfo != null && networkInfo.isConnected) {
             // fetch data
             if (shouldPlaySound) {
@@ -228,8 +225,6 @@ class XkcdActivity : Activity() {
     }
 
     fun leftPressed(v: View) {
-        val networkInfo = networkInfo
-
         if (networkInfo != null && networkInfo.isConnected) {
             if (counter in 2..maximumComicNumber) {
                 counter--
@@ -250,8 +245,6 @@ class XkcdActivity : Activity() {
     }
 
     fun rightPressed(v: View) {
-        val networkInfo = networkInfo
-
         if (networkInfo != null && networkInfo.isConnected) {
             if (counter >= 1 && counter <= maximumComicNumber - 1) {
                 counter++
@@ -343,8 +336,6 @@ class XkcdActivity : Activity() {
             invalidToast()
             return
         }
-
-        val networkInfo = networkInfo
 
         if (networkInfo != null && networkInfo.isConnected) {
             if (comicToGet in 1..maximumComicNumber) {

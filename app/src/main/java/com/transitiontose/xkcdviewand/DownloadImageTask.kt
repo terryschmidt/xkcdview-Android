@@ -7,7 +7,6 @@ import android.util.Log
 import java.lang.ref.WeakReference
 
 internal class DownloadImageTask(private val xkcdActivity : WeakReference<XkcdActivity>?) : AsyncTask<String?, Int?, Bitmap?>() {
-    override fun onPreExecute() {}
     override fun doInBackground(vararg urls: String?): Bitmap? {
         val urldisplay = urls[0]
         var image: Bitmap? = null
