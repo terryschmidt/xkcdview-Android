@@ -9,7 +9,7 @@ android {
         applicationId "com.transitiontose.xkcdviewand"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 41
+        versionCode 42
         versionName "1.0"
     }
     buildTypes {

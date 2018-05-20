@@ -57,7 +57,7 @@ class XkcdActivity : AppCompatActivity() {
     private var urlToRequestDataFrom: String = "https://xkcd.com/info.0.json"
     private lateinit var player: MediaPlayer
     private var shouldPlaySound = true
-    private val networkInfo: NetworkInfo
+    private val networkInfo: NetworkInfo?
         get() {
             val connMgr = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             return connMgr.activeNetworkInfo
@@ -98,7 +98,7 @@ class XkcdActivity : AppCompatActivity() {
 
         val initialURL = "https://xkcd.com/info.0.json"
 
-        if (networkInfo != null && networkInfo.isConnected && savedInstanceState != null) {
+        if (networkInfo != null && networkInfo?.isConnected!! && savedInstanceState != null) {
             maximumComicNumber = savedInstanceState.getInt("oldMaximumComicNumber")
             counter = savedInstanceState.getInt("oldCounter")
             urlToRequestDataFrom = savedInstanceState.getString("oldURLtoRequestDataFrom")
@@ -108,7 +108,7 @@ class XkcdActivity : AppCompatActivity() {
                 comicNumTaker.isEnabled = true
             }
             DownloadWebpageTask(WeakReference(this)).execute(urlToRequestDataFrom)
-        } else if (networkInfo != null && networkInfo.isConnected && savedInstanceState == null) {
+        } else if (networkInfo != null && networkInfo?.isConnected!! && savedInstanceState == null) {
             DownloadWebpageTask(WeakReference(this)).execute(initialURL)
         } else if (networkInfo == null) {
             networkToast()
@@ -204,7 +204,7 @@ class XkcdActivity : AppCompatActivity() {
     }
 
     fun randomComic(v: View) {
-        if (networkInfo != null && networkInfo.isConnected) {
+        if (networkInfo != null && networkInfo?.isConnected!!) {
             // fetch data
             if (shouldPlaySound) {
                 playSound()
@@ -225,7 +225,7 @@ class XkcdActivity : AppCompatActivity() {
     }
 
     fun leftPressed(v: View) {
-        if (networkInfo != null && networkInfo.isConnected) {
+        if (networkInfo != null && networkInfo?.isConnected!!) {
             if (counter in 2..maximumComicNumber) {
                 counter--
                 if (shouldPlaySound) {
@@ -245,7 +245,7 @@ class XkcdActivity : AppCompatActivity() {
     }
 
     fun rightPressed(v: View) {
-        if (networkInfo != null && networkInfo.isConnected) {
+        if (networkInfo != null && networkInfo?.isConnected!!) {
             if (counter >= 1 && counter <= maximumComicNumber - 1) {
                 counter++
                 if (shouldPlaySound) {
@@ -337,7 +337,7 @@ class XkcdActivity : AppCompatActivity() {
             return
         }
 
-        if (networkInfo != null && networkInfo.isConnected) {
+        if (networkInfo != null && networkInfo?.isConnected!!) {
             if (comicToGet in 1..maximumComicNumber) {
                 counter = comicToGet
                 if (shouldPlaySound) {
