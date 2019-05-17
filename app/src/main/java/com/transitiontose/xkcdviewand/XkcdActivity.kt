@@ -142,10 +142,6 @@ class XkcdActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         Log.d(TAG, "onRestart")
-        var mutableMap: MutableMap<String, String> = mutableMapOf()
-        var mutableMap2: Map<String, String> = mutableMapOf()
-        val someArray: MutableList<String> = arrayListOf<String>().toList().toList().toList().toList().toMutableList()
-        someArray[0] = "hi"
     }
 
     override fun onStart() {
